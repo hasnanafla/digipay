@@ -10,7 +10,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2563eb 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             min-height: 100vh;
         }
 
@@ -27,7 +27,7 @@
 
         .sidebar-header {
             padding: 25px 20px;
-            background: linear-gradient(135deg, #2563eb 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             color: white;
         }
 
@@ -479,6 +479,7 @@
     <div class="main-wrapper">
         <div class="container">
             
+            <!-- Dashboard Page -->
             <div id="dashboard" class="page-content active">
                 <div class="page-header">
                     <h1>Dashboard Satker</h1>
@@ -535,6 +536,7 @@
                 </div>
             </div>
 
+            <!-- Data Transaksi Page -->
             <div id="data-transaksi" class="page-content">
                 <div class="page-header">
                     <h1>Data Transaksi</h1>
@@ -584,6 +586,7 @@
                 </div>
             </div>
 
+            <!-- Sheet Proses Page -->
             <div id="sheet-proses" class="page-content">
                 <div class="page-header">
                     <h1>Proses</h1>
@@ -622,6 +625,7 @@
                 </div>
             </div>
 
+            <!-- Rekap Digipay Page -->
             <div id="rekap-digipay" class="page-content">
                 <div class="page-header">
                     <h1>Rekap Digipay</h1>
@@ -666,6 +670,7 @@
         </div>
     </div>
 
+    <!-- Modal Dashboard (Satker) -->
     <div id="dashboardModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -674,16 +679,16 @@
             </div>
             <form id="dashboardForm">
                 <div class="form-group">
-                    <label>Kode Satker</label>
+                    <label>Kode Satker *</label>
                     <input type="text" id="kodeSatkerDash" required>
                 </div>
                 <div class="form-group">
-                    <label>Nama Satker</label>
+                    <label>Nama Satker *</label>
                     <input type="text" id="namaSatkerDash" required>
                 </div>
                 <div class="form-group">
                     <label>Nominal</label>
-                    <input type="number" id="upRM" required>
+                    <input type="number" id="upRM" value="0">
                 </div>
                 <div class="form-group">
                     <label>Nomor WhatsApp</label>
@@ -697,6 +702,7 @@
         </div>
     </div>
 
+    <!-- Modal Transaksi -->
     <div id="transaksiModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -706,37 +712,37 @@
             <form id="transaksiForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Tanggal Pembelian</label>
+                        <label>Tanggal Pembelian *</label>
                         <input type="date" id="tglPembelian" required>
                     </div>
                     <div class="form-group">
-                        <label>KPPN</label>
+                        <label>KPPN *</label>
                         <input type="text" id="kppn" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Kode Satker</label>
+                        <label>Kode Satker *</label>
                         <input type="text" id="kodeSatker" required>
                     </div>
                     <div class="form-group">
-                        <label>Satuan Kerja</label>
+                        <label>Satuan Kerja *</label>
                         <input type="text" id="satker" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Pejabat Pengadaan</label>
+                        <label>Pejabat Pengadaan *</label>
                         <input type="text" id="pejabat" required>
                     </div>
                     <div class="form-group">
-                        <label>Produk</label>
+                        <label>Produk *</label>
                         <input type="text" id="produk" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Total Nominal</label>
+                        <label>Total Nominal *</label>
                         <input type="number" id="totalNominal" required>
                     </div>
                     <div class="form-group">
@@ -746,7 +752,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>No Invoice</label>
+                        <label>No Invoice *</label>
                         <input type="text" id="noInvoice" required>
                     </div>
                     <div class="form-group">
@@ -804,6 +810,7 @@
         </div>
     </div>
 
+    <!-- Modal WhatsApp -->
     <div id="whatsappModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -838,22 +845,20 @@
         const SUPABASE_URL = 'https://tpmmpzsujmhadmsaynsa.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwbW1wenN1am1oYWRtc2F5bnNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2MzQ0NDcsImV4cCI6MjA3NTIxMDQ0N30.x91ksouGDFhe7MiRFEMD-geLHHMgK1VkrNzzIlda9YI';
         
-        // Inisialisasi Supabase Client
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Aplikasi utama
+        // Aplikasi Utama
         const app = {
             activePage: 'dashboard',
             currentEdit: null,
-            
             dashboardData: [],
             transaksiData: [],
             sheetProsesData: [],
             rekapDigipayData: [],
 
             async init() {
-                console.log('Inisialisasi aplikasi...');
+                console.log('🚀 Inisialisasi aplikasi...');
                 try {
                     await this.loadDashboardData();
                     await this.loadTransaksiData();
@@ -862,29 +867,26 @@
                     this.renderAll();
                     this.updateStats();
                     this.setupEventListeners();
-                    console.log('Aplikasi berhasil diinisialisasi');
+                    console.log('✅ Aplikasi berhasil diinisialisasi');
                 } catch (error) {
-                    console.error('Error saat inisialisasi:', error);
+                    console.error('❌ Error saat inisialisasi:', error);
                 }
             },
 
             async loadDashboardData() {
                 try {
-                    console.log('Memuat data satker...');
+                    console.log('📥 Memuat data satker...');
                     const { data, error } = await supabaseClient
                         .from('tbl_satker')
                         .select('*')
                         .order('id_satker');
                     
-                    if (error) {
-                        console.error('Error Supabase:', error);
-                        throw error;
-                    }
+                    if (error) throw error;
                     
                     this.dashboardData = data || [];
                     console.log(`✓ Berhasil memuat ${this.dashboardData.length} data satker`);
                 } catch (err) {
-                    console.error('Error loading satker:', err);
+                    console.error('❌ Error loading satker:', err);
                     document.getElementById('dashboardTableBody').innerHTML = 
                         '<tr><td colspan="6" class="error">Gagal memuat data: ' + err.message + '</td></tr>';
                 }
@@ -892,27 +894,25 @@
 
             async loadTransaksiData() {
                 try {
-                    console.log('Memuat data transaksi...');
+                    console.log('📥 Memuat data transaksi...');
                     const { data, error } = await supabaseClient
                         .from('tbl_transaksi')
                         .select('*')
                         .order('no');
                     
-                    if (error) {
-                        console.error('Error Supabase:', error);
-                        throw error;
-                    }
+                    if (error) throw error;
                     
                     this.transaksiData = data || [];
                     console.log(`✓ Berhasil memuat ${this.transaksiData.length} data transaksi`);
                 } catch (err) {
-                    console.error('Error loading transaksi:', err);
+                    console.error('❌ Error loading transaksi:', err);
                     document.getElementById('transaksiTableBody').innerHTML = 
                         '<tr><td colspan="18" class="error">Gagal memuat data: ' + err.message + '</td></tr>';
                 }
             },
 
             setupEventListeners() {
+                // Menu navigation
                 document.querySelectorAll('.menu-item').forEach(item => {
                     item.addEventListener('click', (e) => {
                         const page = e.currentTarget.getAttribute('data-page');
@@ -920,21 +920,26 @@
                     });
                 });
 
+                // Button events
                 document.getElementById('btnAddDashboard').addEventListener('click', () => this.openModal('dashboard'));
                 document.getElementById('btnAddTransaksi').addEventListener('click', () => this.openModal('transaksi'));
                 
+                // Close modal events
                 document.getElementById('closeDashboardModal').addEventListener('click', () => this.closeModal('dashboard'));
                 document.getElementById('closeTransaksiModal').addEventListener('click', () => this.closeModal('transaksi'));
                 document.getElementById('closeWhatsappModal').addEventListener('click', () => this.closeModal('whatsapp'));
                 
+                // Cancel button events
                 document.getElementById('cancelDashboard').addEventListener('click', () => this.closeModal('dashboard'));
                 document.getElementById('cancelTransaksi').addEventListener('click', () => this.closeModal('transaksi'));
                 document.getElementById('cancelWhatsapp').addEventListener('click', () => this.closeModal('whatsapp'));
                 
+                // Form submit events
                 document.getElementById('dashboardForm').addEventListener('submit', (e) => this.saveDashboard(e));
                 document.getElementById('transaksiForm').addEventListener('submit', (e) => this.saveTransaksi(e));
                 document.getElementById('whatsappForm').addEventListener('submit', (e) => this.sendWhatsApp(e));
                 
+                // Search events
                 document.getElementById('searchDashboard').addEventListener('input', () => this.searchData());
                 document.getElementById('searchTransaksi').addEventListener('input', () => this.searchData());
                 document.getElementById('searchProses').addEventListener('input', () => this.searchData());
@@ -1076,19 +1081,19 @@
                     return;
                 }
                 
-                tbody.innerHTML = data.map((d, index) => `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${d.kode_satker || '-'}</td>
-                        <td>${d.nama_satker || '-'}</td>
-                        <td>Rp ${(d.nominal || 0).toLocaleString('id-ID')}</td>
-                        <td>${d.nomor_ws || '-'}</td>
-                        <td>
-                            <button class="btn-icon btn-edit" onclick="app.editDashboard(${d.id_satker})">✏️</button>
-                            <button class="btn-icon btn-whatsapp" onclick="app.prepareWhatsApp(${d.id_satker})">📱</button>
-                        </td>
-                    </tr>
-                `).join('');
+tbody.innerHTML = data.map((d, index) => `
+    <tr>
+        <td>${index + 1}</td>
+        <td>${d.kode_satker || '-'}</td>
+        <td>${d.nama_satker || '-'}</td>
+        <td>Rp ${(d.nominal || 0).toLocaleString('id-ID')}</td>
+        <td>${d.nomor_wa || '-'}</td>
+        <td>
+            <button class="btn-icon btn-edit" onclick="app.editDashboard('${d.kode_satker}')">✏️</button>
+            <button class="btn-icon btn-whatsapp" onclick="app.prepareWhatsApp('${d.kode_satker}')">📱</button>
+        </td>
+    </tr>
+`).join('');
             },
 
             renderTransaksiTable() {
@@ -1252,14 +1257,26 @@
                 this.currentEdit = data;
                 
                 if (type === 'dashboard') {
-                    document.getElementById('dashboardModalTitle').textContent = 
-                        data ? 'Edit Data Satker' : 'Tambah Data Satker';
-                    document.getElementById('kodeSatkerDash').value = data?.kode_satker || '';
-                    document.getElementById('namaSatkerDash').value = data?.nama_satker || '';
-                    document.getElementById('upRM').value = data?.nominal || '';
-                    document.getElementById('nomorWA').value = data?.nomor_ws || '';
-                    document.getElementById('dashboardModal').classList.add('active');
-                }
+    document.getElementById('dashboardModalTitle').textContent = 
+        data ? 'Edit Data Satker' : 'Tambah Data Satker';
+    
+    const kodeSatkerInput = document.getElementById('kodeSatkerDash');
+    kodeSatkerInput.value = data?.kode_satker || '';
+    
+    // Jika mode edit, buat kode satker readonly
+    if (data) {
+        kodeSatkerInput.setAttribute('readonly', 'readonly');
+        kodeSatkerInput.style.background = '#f8fafc';
+    } else {
+        kodeSatkerInput.removeAttribute('readonly');
+        kodeSatkerInput.style.background = 'white';
+    }
+    
+    document.getElementById('namaSatkerDash').value = data?.nama_satker || '';
+    document.getElementById('upRM').value = data?.nominal || 0;
+    document.getElementById('nomorWA').value = data?.nomor_wa || '';
+    document.getElementById('dashboardModal').classList.add('active');
+}
                 else if (type === 'transaksi') {
                     document.getElementById('transaksiModalTitle').textContent = 
                         data ? 'Edit Data Transaksi' : 'Tambah Data Transaksi';
@@ -1293,52 +1310,88 @@
                 document.getElementById(modals[type]).classList.remove('active');
                 this.currentEdit = null;
             },
+async saveDashboard(event) {
+    event.preventDefault();
+    
+   const data = {
+    kode_satker: document.getElementById('kodeSatkerDash').value,
+    nama_satker: document.getElementById('namaSatkerDash').value,
+    nominal: parseFloat(document.getElementById('upRM').value) || 0,
+    nomor_wa: document.getElementById('nomorWA').value
+};
 
-            async saveDashboard(event) {
-                event.preventDefault();
-                
-                const data = {
-                    kode_satker: document.getElementById('kodeSatkerDash').value,
-                    nama_satker: document.getElementById('namaSatkerDash').value,
-                    nominal: parseFloat(document.getElementById('upRM').value) || 0,
-                    nomor_ws: document.getElementById('nomorWA').value
-                };
+    try {
+        if (this.currentEdit) {
+            // Mode Edit - Update data yang sudah ada
+            console.log('Updating satker:', data);
+            const { error } = await supabaseClient
+                .from('tbl_satker')
+                .update(data)
+                .eq('kode_satker', this.currentEdit.kode_satker);
+            
+            if (error) {
+                console.error('Update error:', error);
+                throw error;
+            }
+            
+            console.log('Update successful');
+        } else {
+            // Mode Insert - Tambah data baru
+            // Cek dulu apakah kode_satker sudah ada
+            console.log('Checking for duplicate kode_satker...');
+            const { data: existing, error: checkError } = await supabaseClient
+                .from('tbl_satker')
+                .select('kode_satker')
+                .eq('kode_satker', data.kode_satker)
+                .maybeSingle();
+            
+            if (checkError) {
+                console.error('Check error:', checkError);
+                throw checkError;
+            }
+            
+            if (existing) {
+                alert('❌ Kode Satker "' + data.kode_satker + '" sudah ada! Gunakan kode yang berbeda.');
+                return;
+            }
+            
+            // Insert data baru
+            console.log('Inserting new satker:', data);
+            const { error } = await supabaseClient
+                .from('tbl_satker')
+                .insert([data]);
+            
+            if (error) {
+                console.error('Insert error:', error);
+                throw error;
+            }
+            
+            console.log('Insert successful');
+        }
 
-                try {
-                    if (this.currentEdit) {
-                        const { error } = await supabaseClient
-                            .from('tbl_satker')
-                            .update(data)
-                            .eq('id_satker', this.currentEdit.id_satker);
-                        
-                        if (error) throw error;
-                    } else {
-                        const { error } = await supabaseClient
-                            .from('tbl_satker')
-                            .insert([data]);
-                        
-                        if (error) throw error;
-                    }
+        // Reload data dan update tampilan
+        await this.loadDashboardData();
+        this.calculateSheetProses();
+        this.calculateRekapDigipay();
+        this.renderAll();
+        this.updateStats();
+        this.closeModal('dashboard');
+        
+        const message = this.currentEdit ? 'diperbarui' : 'ditambahkan';
+        alert('✅ Data satker berhasil ' + message + '!');
+        
+    } catch (err) {
+        console.error('Error saving satker:', err);
+        alert('❌ Gagal menyimpan data: ' + err.message);
+    }
+},
 
-                    await this.loadDashboardData();
-                    this.calculateSheetProses();
-                    this.calculateRekapDigipay();
-                    this.renderAll();
-                    this.updateStats();
-                    this.closeModal('dashboard');
-                    alert('✅ Data satker berhasil disimpan!');
-                } catch (err) {
-                    console.error('Error saving satker:', err);
-                    alert('❌ Gagal menyimpan data: ' + err.message);
-                }
-            },
-
-            editDashboard(id) {
-                const data = this.dashboardData.find(d => d.id_satker === id);
-                if (data) {
-                    this.openModal('dashboard', data);
-                }
-            },
+editDashboard(kodeSatker) {
+    const data = this.dashboardData.find(d => d.kode_satker === kodeSatker);
+    if (data) {
+        this.openModal('dashboard', data);
+    }
+},
 
             async saveTransaksi(event) {
                 event.preventDefault();
@@ -1351,32 +1404,38 @@
                     pejabat_pengadaan: document.getElementById('pejabat').value,
                     produk: document.getElementById('produk').value,
                     total_nominal: parseFloat(document.getElementById('totalNominal').value) || 0,
-                    nomor_rekening: document.getElementById('noRekening').value,
+                    nomor_rekening: document.getElementById('noRekening').value || null,
                     nomor_invoice: document.getElementById('noInvoice').value,
                     metode_bayar: document.getElementById('metodeBayar').value,
                     status_transaksi: document.getElementById('statusTransaksi').value,
-                    tanggal_deadline: document.getElementById('tglDeadline').value,
-                    tanggal_jatuh_tempo: document.getElementById('tglJatuhTempo').value,
-                    tanggal_checkout: document.getElementById('tglCheckout').value,
-                    tanggal_kirim: document.getElementById('tglKirim').value,
-                    tanggal_terima: document.getElementById('tglTerima').value,
-                    tanggal_bayar: document.getElementById('tglBayar').value
+                    tanggal_deadline: document.getElementById('tglDeadline').value || null,
+                    tanggal_jatuh_tempo: document.getElementById('tglJatuhTempo').value || null,
+                    tanggal_checkout: document.getElementById('tglCheckout').value || null,
+                    tanggal_kirim: document.getElementById('tglKirim').value || null,
+                    tanggal_terima: document.getElementById('tglTerima').value || null,
+                    tanggal_bayar: document.getElementById('tglBayar').value || null
                 };
 
                 try {
+                    console.log('💾 Menyimpan transaksi:', data);
+                    
                     if (this.currentEdit) {
-                        const { error } = await supabaseClient
+                        const { data: result, error } = await supabaseClient
                             .from('tbl_transaksi')
                             .update(data)
-                            .eq('no', this.currentEdit.no);
+                            .eq('no', this.currentEdit.no)
+                            .select();
                         
                         if (error) throw error;
+                        console.log('✅ Update transaksi berhasil:', result);
                     } else {
-                        const { error } = await supabaseClient
+                        const { data: result, error } = await supabaseClient
                             .from('tbl_transaksi')
-                            .insert([data]);
+                            .insert([data])
+                            .select();
                         
                         if (error) throw error;
+                        console.log('✅ Insert transaksi berhasil:', result);
                     }
 
                     await this.loadTransaksiData();
@@ -1387,7 +1446,7 @@
                     this.closeModal('transaksi');
                     alert('✅ Data transaksi berhasil disimpan!');
                 } catch (err) {
-                    console.error('Error saving transaksi:', err);
+                    console.error('❌ Error saving transaksi:', err);
                     alert('❌ Gagal menyimpan data: ' + err.message);
                 }
             },
@@ -1400,7 +1459,7 @@
             },
 
             async deleteTransaksi(id) {
-                if (confirm('Hapus transaksi ini?')) {
+                if (confirm('⚠️ Hapus transaksi ini?')) {
                     try {
                         const { error } = await supabaseClient
                             .from('tbl_transaksi')
@@ -1416,15 +1475,15 @@
                         this.updateStats();
                         alert('✅ Data transaksi berhasil dihapus!');
                     } catch (err) {
-                        console.error('Error deleting transaksi:', err);
+                        console.error('❌ Error deleting transaksi:', err);
                         alert('❌ Gagal menghapus data: ' + err.message);
                     }
                 }
             },
 
-            prepareWhatsApp(id) {
-                const satker = this.dashboardData.find(d => d.id_satker === id);
-                if (!satker) return;
+prepareWhatsApp(kodeSatker) {
+    const satker = this.dashboardData.find(d => d.kode_satker === kodeSatker);
+    if (!satker) return;
                 
                 const proses = this.sheetProsesData.find(p => p.kodeSatker === satker.kode_satker);
                 
@@ -1433,7 +1492,7 @@
                     : `Berdasarkan monitoring, ${satker.nama_satker} belum mengimplementasikan Digipay.\n\nSesuai Nota Dinas Direktur Pengelolaan Kas Negara, setiap satker ditargetkan minimal 2 transaksi.\n\nHubungi CSO KPPN: 081349358202`;
                 
                 document.getElementById('waSatkerName').value = satker.nama_satker;
-                document.getElementById('waNumber').value = satker.nomor_ws || '';
+                document.getElementById('waNumber').value = satker.nomor_wa || '';
                 document.getElementById('waMessage').value = message;
                 document.getElementById('whatsappModal').classList.add('active');
             },
@@ -1442,6 +1501,12 @@
                 event.preventDefault();
                 const number = document.getElementById('waNumber').value;
                 const message = document.getElementById('waMessage').value;
+                
+                if (!number) {
+                    alert('❌ Nomor WhatsApp harus diisi!');
+                    return;
+                }
+                
                 window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, '_blank');
                 this.closeModal('whatsapp');
             }
@@ -1449,7 +1514,7 @@
 
         // Jalankan aplikasi saat DOM ready
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, starting app...');
+            console.log('🌐 DOM loaded, starting app...');
             app.init();
         });
     </script>
