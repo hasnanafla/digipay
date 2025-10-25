@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPPN Digipay Monitoring Sistem</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2563eb 0%, #2563eb 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            background: linear-gradient(135deg, #2563eb 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .sidebar-header h2 { font-size: 20px; margin-bottom: 5px; }
+        .sidebar-header p { font-size: 13px; opacity: 0.9; }
+
+        .menu-item {
+            padding: 16px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        .menu-item.active {
+            background: #eff6ff;
+            color: #2563eb;
+            border-left-color: #2563eb;
+            font-weight: 600;
+        }
+
+        .menu-icon { font-size: 22px; }
+
+        .main-wrapper {
+            margin-left: 260px;
+            padding: 24px;
+        }
+
+        .container { max-width: 1600px; margin: 0 auto; }
+
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 { 
+            color: #2563eb; 
+            font-size: 32px; 
+            margin-bottom: 8px; 
+        }
+
+        .page-header p { 
+            color: #64748b; 
+            font-size: 15px; 
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .stat-card h3 {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .stat-card.green .value { color: #10b981; }
+        .stat-card.amber .value { color: #f59e0b; }
+
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 18px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 45px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37,99,235,0.3);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-icon {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+            margin-right: 6px;
+        }
+
+        .btn-edit:hover { background: #2563eb; }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover { background: #dc2626; }
+
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+        }
+
+        .btn-whatsapp:hover { background: #128c7e; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #ef4444;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #1e40af;
+            color: white;
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #1e3a8a;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            color: #2563eb;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #64748b;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #334155;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #475569;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group input[readonly],
+        .form-group textarea[readonly] {
+            background: #f8fafc;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        .page-content {
+            display: none;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        select {
+            padding: 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main-wrapper {
+                margin-left: 0;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>KPPN Sistem</h2>
+            <p>Digipay Monitoring</p>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item active" data-page="dashboard">
+                <span class="menu-icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item" data-page="data-transaksi">
+                <span class="menu-icon">💳</span>
+                <span>Data Transaksi</span>
+            </div>
+            <div class="menu-item" data-page="sheet-proses">
+                <span class="menu-icon">⚙️</span>
+                <span>Proses</span>
+            </div>
+            <div class="menu-item" data-page="rekap-digipay">
+                <span class="menu-icon">📈</span>
+                <span>Rekap Digipay</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="container">
+            
+            <div id="dashboard" class="page-content active">
+                <div class="page-header">
+                    <h1>Dashboard Satker</h1>
+                    <p>Data Satker KPPN Pekalongan</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Satker</h3>
+                        <div class="value" id="totalSatker">0</div>
+                    </div>
+                    <div class="stat-card green">
+                        <h3>Sudah Implementasi</h3>
+                        <div class="value" id="sudahImplement">0</div>
+                    </div>
+                    <div class="stat-card amber">
+                        <h3>Belum Implementasi</h3>
+                        <div class="value" id="belumImplement">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Transaksi</h3>
+                        <div class="value" id="totalTransaksi">0</div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="toolbar">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchDashboard" placeholder="Cari satker...">
+                        </div>
+                        <button class="btn btn-primary" id="btnAddDashboard">
+                            <span>+</span> Tambah Satker
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Kode Satker</th>
+                                    <th>Satker</th>
+                                    <th>Nominal</th>
+                                    <th>Nomor WA</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboardTableBody">
+                                <tr><td colspan="6" class="loading">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="data-transaksi" class="page-content">
+                <div class="page-header">
+                    <h1>Data Transaksi</h1>
+                    <p>Kelola Data Transaksi Digipay Lengkap</p>
+                </div>
+
+                <div class="content-card">
+                    <div class="toolbar">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchTransaksi" placeholder="Cari...">
+                        </div>
+                        <button class="btn btn-primary" id="btnAddTransaksi">
+                            <span>+</span> Tambah Transaksi
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Tanggal Pembelian</th>
+                                    <th>KPPN</th>
+                                    <th>Satuan Kerja</th>
+                                    <th>Pejabat Pengadaan</th>
+                                    <th>Produk</th>
+                                    <th>Total Nominal</th>
+                                    <th>No Rekening</th>
+                                    <th>No Invoice</th>
+                                    <th>Metode Bayar</th>
+                                    <th>Status Transaksi</th>
+                                    <th>Tgl Deadline</th>
+                                    <th>Tgl Jatuh Tempo</th>
+                                    <th>Tgl Checkout</th>
+                                    <th>Tgl Kirim</th>
+                                    <th>Tgl Terima</th>
+                                    <th>Tgl Bayar</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaksiTableBody">
+                                <tr><td colspan="18" class="loading">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sheet-proses" class="page-content">
+                <div class="page-header">
+                    <h1>Proses</h1>
+                </div>
+
+                <div class="content-card">
+                    <div class="toolbar">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchProses" placeholder="Cari...">
+                        </div>
+                        <select id="statusFilter">
+                            <option value="">Semua Status</option>
+                            <option value="SUDAH">Sudah</option>
+                            <option value="BELUM">Belum</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama Satker</th>
+                                    <th>Status</th>
+                                    <th>Proses Transaksi</th>
+                                    <th>Transaksi</th>
+                                    <th>VA Terbayar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prosesTableBody">
+                                <tr><td colspan="6" class="loading">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="rekap-digipay" class="page-content">
+                <div class="page-header">
+                    <h1>Rekap Digipay</h1>
+                    <p>Monitoring Digipay Satuan Kerja KPPN Pekalongan</p>
+                </div>
+
+                <div class="content-card">
+                    <div class="toolbar">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchRekap" placeholder="Cari...">
+                        </div>
+                        <select id="statusFilterRekap">
+                            <option value="">Semua Status</option>
+                            <option value="SUDAH">Sudah</option>
+                            <option value="BELUM">Belum</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Kode Satker</th>
+                                    <th>Satker</th>
+                                    <th>Nominal</th>
+                                    <th>Proses Transaksi</th>
+                                    <th>VA Terbayar</th>
+                                    <th>Transaksi VA</th>
+                                    <th>Status</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekapTableBody">
+                                <tr><td colspan="9" class="loading">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="dashboardModalTitle">Tambah Data Satker</h2>
+                <button class="close-btn" id="closeDashboardModal">×</button>
+            </div>
+            <form id="dashboardForm">
+                <div class="form-group">
+                    <label>Kode Satker</label>
+                    <input type="text" id="kodeSatkerDash" required>
+                </div>
+                <div class="form-group">
+                    <label>Nama Satker</label>
+                    <input type="text" id="namaSatkerDash" required>
+                </div>
+                <div class="form-group">
+                    <label>Nominal</label>
+                    <input type="number" id="upRM" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp</label>
+                    <input type="tel" id="nomorWA" placeholder="628123456789">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelDashboard">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="transaksiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="transaksiModalTitle">Tambah Data Transaksi</h2>
+                <button class="close-btn" id="closeTransaksiModal">×</button>
+            </div>
+            <form id="transaksiForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tanggal Pembelian</label>
+                        <input type="date" id="tglPembelian" required>
+                    </div>
+                    <div class="form-group">
+                        <label>KPPN</label>
+                        <input type="text" id="kppn" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kode Satker</label>
+                        <input type="text" id="kodeSatker" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan Kerja</label>
+                        <input type="text" id="satker" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pejabat Pengadaan</label>
+                        <input type="text" id="pejabat" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Produk</label>
+                        <input type="text" id="produk" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Total Nominal</label>
+                        <input type="number" id="totalNominal" required>
+                    </div>
+                    <div class="form-group">
+                        <label>No Rekening</label>
+                        <input type="text" id="noRekening">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>No Invoice</label>
+                        <input type="text" id="noInvoice" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Metode Bayar</label>
+                        <select id="metodeBayar">
+                            <option value="VA">VA</option>
+                            <option value="Transfer">Transfer</option>
+                            <option value="Tunai">Tunai</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Status Transaksi</label>
+                        <select id="statusTransaksi">
+                            <option value="Pending">Pending</option>
+                            <option value="Berhasil">Berhasil</option>
+                            <option value="Gagal">Gagal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Deadline</label>
+                        <input type="date" id="tglDeadline">
+                    </div>
+                </div>                  
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tanggal Jatuh Tempo</label>
+                        <input type="date" id="tglJatuhTempo">
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Checkout</label>
+                        <input type="date" id="tglCheckout">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tanggal Kirim</label>
+                        <input type="date" id="tglKirim">
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Terima</label>
+                        <input type="date" id="tglTerima">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Bayar</label>
+                    <input type="date" id="tglBayar">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelTransaksi">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="whatsappModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Kirim Notifikasi WhatsApp</h2>
+                <button class="close-btn" id="closeWhatsappModal">×</button>
+            </div>
+            <form id="whatsappForm">
+                <div class="form-group">
+                    <label>Nama Satker</label>
+                    <input type="text" id="waSatkerName" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp</label>
+                    <input type="tel" id="waNumber" required>
+                </div>
+                <div class="form-group">
+                    <label>Pesan</label>
+                    <textarea id="waMessage" readonly></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelWhatsapp">Batal</button>
+                    <button type="submit" class="btn btn-success">
+                        <span>📱</span> Kirim WhatsApp
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Konfigurasi Supabase
+        const SUPABASE_URL = 'https://tpmmpzsujmhadmsaynsa.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwbW1wenN1am1oYWRtc2F5bnNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2MzQ0NDcsImV4cCI6MjA3NTIxMDQ0N30.x91ksouGDFhe7MiRFEMD-geLHHMgK1VkrNzzIlda9YI';
+        
+        // Inisialisasi Supabase Client
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Aplikasi utama
+        const app = {
+            activePage: 'dashboard',
+            currentEdit: null,
+            
+            dashboardData: [],
+            transaksiData: [],
+            sheetProsesData: [],
+            rekapDigipayData: [],
+
+            async init() {
+                console.log('Inisialisasi aplikasi...');
+                try {
+                    await this.loadDashboardData();
+                    await this.loadTransaksiData();
+                    this.calculateSheetProses();
+                    this.calculateRekapDigipay();
+                    this.renderAll();
+                    this.updateStats();
+                    this.setupEventListeners();
+                    console.log('Aplikasi berhasil diinisialisasi');
+                } catch (error) {
+                    console.error('Error saat inisialisasi:', error);
+                }
+            },
+
+            async loadDashboardData() {
+                try {
+                    console.log('Memuat data satker...');
+                    const { data, error } = await supabaseClient
+                        .from('tbl_satker')
+                        .select('*')
+                        .order('id_satker');
+                    
+                    if (error) {
+                        console.error('Error Supabase:', error);
+                        throw error;
+                    }
+                    
+                    this.dashboardData = data || [];
+                    console.log(`✓ Berhasil memuat ${this.dashboardData.length} data satker`);
+                } catch (err) {
+                    console.error('Error loading satker:', err);
+                    document.getElementById('dashboardTableBody').innerHTML = 
+                        '<tr><td colspan="6" class="error">Gagal memuat data: ' + err.message + '</td></tr>';
+                }
+            },
+
+            async loadTransaksiData() {
+                try {
+                    console.log('Memuat data transaksi...');
+                    const { data, error } = await supabaseClient
+                        .from('tbl_transaksi')
+                        .select('*')
+                        .order('no');
+                    
+                    if (error) {
+                        console.error('Error Supabase:', error);
+                        throw error;
+                    }
+                    
+                    this.transaksiData = data || [];
+                    console.log(`✓ Berhasil memuat ${this.transaksiData.length} data transaksi`);
+                } catch (err) {
+                    console.error('Error loading transaksi:', err);
+                    document.getElementById('transaksiTableBody').innerHTML = 
+                        '<tr><td colspan="18" class="error">Gagal memuat data: ' + err.message + '</td></tr>';
+                }
+            },
+
+            setupEventListeners() {
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const page = e.currentTarget.getAttribute('data-page');
+                        this.changePage(page);
+                    });
+                });
+
+                document.getElementById('btnAddDashboard').addEventListener('click', () => this.openModal('dashboard'));
+                document.getElementById('btnAddTransaksi').addEventListener('click', () => this.openModal('transaksi'));
+                
+                document.getElementById('closeDashboardModal').addEventListener('click', () => this.closeModal('dashboard'));
+                document.getElementById('closeTransaksiModal').addEventListener('click', () => this.closeModal('transaksi'));
+                document.getElementById('closeWhatsappModal').addEventListener('click', () => this.closeModal('whatsapp'));
+                
+                document.getElementById('cancelDashboard').addEventListener('click', () => this.closeModal('dashboard'));
+                document.getElementById('cancelTransaksi').addEventListener('click', () => this.closeModal('transaksi'));
+                document.getElementById('cancelWhatsapp').addEventListener('click', () => this.closeModal('whatsapp'));
+                
+                document.getElementById('dashboardForm').addEventListener('submit', (e) => this.saveDashboard(e));
+                document.getElementById('transaksiForm').addEventListener('submit', (e) => this.saveTransaksi(e));
+                document.getElementById('whatsappForm').addEventListener('submit', (e) => this.sendWhatsApp(e));
+                
+                document.getElementById('searchDashboard').addEventListener('input', () => this.searchData());
+                document.getElementById('searchTransaksi').addEventListener('input', () => this.searchData());
+                document.getElementById('searchProses').addEventListener('input', () => this.searchData());
+                document.getElementById('searchRekap').addEventListener('input', () => this.searchData());
+                document.getElementById('statusFilter').addEventListener('change', () => this.searchData());
+                document.getElementById('statusFilterRekap').addEventListener('change', () => this.searchData());
+            },
+
+            changePage(pageId) {
+                this.activePage = pageId;
+                
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('data-page') === pageId) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                document.querySelectorAll('.page-content').forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById(pageId).classList.add('active');
+                
+                this.clearSearch();
+                this.renderCurrentPage();
+            },
+
+            calculateSheetProses() {
+                const grouped = {};
+                
+                this.transaksiData.forEach(trx => {
+                    if (!grouped[trx.kode_satker]) {
+                        grouped[trx.kode_satker] = {
+                            kodeSatker: trx.kode_satker,
+                            namaSatker: trx.satuan_kerja,
+                            totalData: 0,
+                            jumlahTransaksi: 0,
+                            vaTerbayar: 0
+                        };
+                    }
+                    
+                    grouped[trx.kode_satker].totalData++;
+                    
+                    if (trx.status_transaksi === 'Berhasil' && trx.total_nominal > 0) {
+                        grouped[trx.kode_satker].jumlahTransaksi++;
+                        if (trx.metode_bayar === 'VA' && trx.tanggal_bayar) {
+                            grouped[trx.kode_satker].vaTerbayar++;
+                        }
+                    }
+                });
+                
+                this.sheetProsesData = Object.values(grouped).map(item => ({
+                    kodeSatker: item.kodeSatker,
+                    namaSatker: item.namaSatker,
+                    status: item.vaTerbayar > 0 ? 'SUDAH' : 'BELUM',
+                    prosesTransaksi: item.totalData,
+                    transaksi: item.jumlahTransaksi,
+                    vaTerbayar: item.vaTerbayar
+                }));
+            },
+
+            calculateRekapDigipay() {
+                const grouped = {};
+                
+                this.transaksiData.forEach(trx => {
+                    if (!grouped[trx.kode_satker]) {
+                        const satkerInfo = this.dashboardData.find(d => d.kode_satker === trx.kode_satker);
+                        grouped[trx.kode_satker] = {
+                            kodeSatker: trx.kode_satker,
+                            namaSatker: trx.satuan_kerja,
+                            upRM: satkerInfo ? satkerInfo.nominal : 0,
+                            prosesTransaksi: 0,
+                            vaTerbayar: 0,
+                            transaksiKuitansi: 0
+                        };
+                    }
+                    
+                    grouped[trx.kode_satker].prosesTransaksi++;
+                    
+                    if (trx.status_transaksi === 'Berhasil' && trx.total_nominal > 0) {
+                        grouped[trx.kode_satker].transaksiKuitansi++;
+                        if (trx.metode_bayar === 'VA' && trx.tanggal_bayar) {
+                            grouped[trx.kode_satker].vaTerbayar++;
+                        }
+                    }
+                });
+                
+                this.rekapDigipayData = Object.values(grouped).map((item, index) => {
+                    const status = item.vaTerbayar > 0 ? 'SUDAH' : 'BELUM';
+                    let keterangan = '';
+                    
+                    if (status === 'BELUM') {
+                        keterangan = 'Belum menggunakan Digipay';
+                    }
+                    
+                    return {
+                        no: index + 1,
+                        kodeSatker: item.kodeSatker,
+                        namaSatker: item.namaSatker,
+                        upRM: item.upRM,
+                        prosesTransaksi: item.prosesTransaksi,
+                        vaTerbayar: item.vaTerbayar,
+                        transaksiKuitansi: item.transaksiKuitansi,
+                        status: status,
+                        keterangan: keterangan
+                    };
+                });
+            },
+
+            updateStats() {
+                document.getElementById('totalSatker').textContent = this.dashboardData.length;
+                document.getElementById('sudahImplement').textContent = 
+                    this.sheetProsesData.filter(s => s.status === 'SUDAH').length;
+                document.getElementById('belumImplement').textContent = 
+                    this.sheetProsesData.filter(s => s.status === 'BELUM').length;
+                document.getElementById('totalTransaksi').textContent = this.transaksiData.length;
+            },
+
+            renderAll() {
+                this.renderDashboardTable();
+                this.renderTransaksiTable();
+                this.renderProsesTable();
+                this.renderRekapTable();
+            },
+
+            renderCurrentPage() {
+                if (this.activePage === 'dashboard') this.renderDashboardTable();
+                else if (this.activePage === 'data-transaksi') this.renderTransaksiTable();
+                else if (this.activePage === 'sheet-proses') this.renderProsesTable();
+                else if (this.activePage === 'rekap-digipay') this.renderRekapTable();
+            },
+
+            renderDashboardTable() {
+                const tbody = document.getElementById('dashboardTableBody');
+                const data = this.getFilteredData();
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="loading">Tidak ada data</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.map((d, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${d.kode_satker || '-'}</td>
+                        <td>${d.nama_satker || '-'}</td>
+                        <td>Rp ${(d.nominal || 0).toLocaleString('id-ID')}</td>
+                        <td>${d.nomor_ws || '-'}</td>
+                        <td>
+                            <button class="btn-icon btn-edit" onclick="app.editDashboard(${d.id_satker})">✏️</button>
+                            <button class="btn-icon btn-whatsapp" onclick="app.prepareWhatsApp(${d.id_satker})">📱</button>
+                        </td>
+                    </tr>
+                `).join('');
+            },
+
+            renderTransaksiTable() {
+                const tbody = document.getElementById('transaksiTableBody');
+                const data = this.getFilteredData();
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="18" class="loading">Tidak ada data</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.map(t => `
+                    <tr>
+                        <td>${t.no || '-'}</td>
+                        <td>${t.tanggal_pembelian || '-'}</td>
+                        <td>${t.kppn || '-'}</td>
+                        <td>${t.satuan_kerja || '-'}</td>
+                        <td>${t.pejabat_pengadaan || '-'}</td>
+                        <td>${t.produk || '-'}</td>
+                        <td>Rp ${(t.total_nominal || 0).toLocaleString('id-ID')}</td>
+                        <td>${t.nomor_rekening || '-'}</td>
+                        <td>${t.nomor_invoice || '-'}</td>
+                        <td>${t.metode_bayar || '-'}</td>
+                        <td>
+                            <span class="badge ${t.status_transaksi === 'Berhasil' ? 'badge-success' : t.status_transaksi === 'Pending' ? 'badge-warning' : 'badge-danger'}">
+                                ${t.status_transaksi || 'Pending'}
+                            </span>
+                        </td>
+                        <td>${t.tanggal_deadline || '-'}</td>
+                        <td>${t.tanggal_jatuh_tempo || '-'}</td>
+                        <td>${t.tanggal_checkout || '-'}</td>
+                        <td>${t.tanggal_kirim || '-'}</td>
+                        <td>${t.tanggal_terima || '-'}</td>
+                        <td>${t.tanggal_bayar || '-'}</td>
+                        <td>
+                            <button class="btn-icon btn-edit" onclick="app.editTransaksi(${t.no})">✏️</button>
+                            <button class="btn-icon btn-delete" onclick="app.deleteTransaksi(${t.no})">🗑️</button>
+                        </td>
+                    </tr>
+                `).join('');
+            },
+
+            renderProsesTable() {
+                const tbody = document.getElementById('prosesTableBody');
+                const data = this.getFilteredData();
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="loading">Tidak ada data</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.map(p => `
+                    <tr>
+                        <td>${p.kodeSatker}</td>
+                        <td>${p.namaSatker}</td>
+                        <td>
+                            <span class="badge ${p.status === 'SUDAH' ? 'badge-success' : 'badge-danger'}">
+                                ${p.status}
+                            </span>
+                        </td>
+                        <td>${p.prosesTransaksi}</td>
+                        <td>${p.transaksi}</td>
+                        <td>${p.vaTerbayar}</td>
+                    </tr>
+                `).join('');
+            },
+
+            renderRekapTable() {
+                const tbody = document.getElementById('rekapTableBody');
+                const data = this.getFilteredData();
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="loading">Tidak ada data</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.map(r => `
+                    <tr>
+                        <td>${r.no}</td>
+                        <td>${r.kodeSatker}</td>
+                        <td>${r.namaSatker}</td>
+                        <td>Rp ${(r.upRM || 0).toLocaleString('id-ID')}</td>
+                        <td>${r.prosesTransaksi}</td>
+                        <td>${r.vaTerbayar}</td>
+                        <td>${r.transaksiKuitansi}</td>
+                        <td>
+                            <span class="badge ${r.status === 'SUDAH' ? 'badge-success' : 'badge-danger'}">
+                                ${r.status}
+                            </span>
+                        </td>
+                        <td>${r.keterangan}</td>
+                    </tr>
+                `).join('');
+            },
+
+            getFilteredData() {
+                const searchInput = this.activePage === 'dashboard' ? 'searchDashboard' :
+                                   this.activePage === 'data-transaksi' ? 'searchTransaksi' : 
+                                   this.activePage === 'rekap-digipay' ? 'searchRekap' : 'searchProses';
+                const searchTerm = document.getElementById(searchInput)?.value.toLowerCase() || '';
+                
+                if (this.activePage === 'dashboard') {
+                    return this.dashboardData.filter(d =>
+                        (d.kode_satker || '').toLowerCase().includes(searchTerm) ||
+                        (d.nama_satker || '').toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                if (this.activePage === 'data-transaksi') {
+                    return this.transaksiData.filter(t =>
+                        (t.kode_satker || '').toLowerCase().includes(searchTerm) ||
+                        (t.satuan_kerja || '').toLowerCase().includes(searchTerm) ||
+                        (t.pejabat_pengadaan || '').toLowerCase().includes(searchTerm) ||
+                        (t.nomor_invoice || '').toLowerCase().includes(searchTerm) ||
+                        (t.kppn || '').toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                if (this.activePage === 'sheet-proses') {
+                    const statusFilter = document.getElementById('statusFilter').value;
+                    return this.sheetProsesData.filter(p => {
+                        const matchSearch = (p.kodeSatker || '').toLowerCase().includes(searchTerm) ||
+                                          (p.namaSatker || '').toLowerCase().includes(searchTerm);
+                        const matchStatus = !statusFilter || p.status === statusFilter;
+                        return matchSearch && matchStatus;
+                    });
+                }
+
+                if (this.activePage === 'rekap-digipay') {
+                    const statusFilter = document.getElementById('statusFilterRekap').value;
+                    return this.rekapDigipayData.filter(r => {
+                        const matchSearch = (r.kodeSatker || '').toLowerCase().includes(searchTerm) ||
+                                          (r.namaSatker || '').toLowerCase().includes(searchTerm);
+                        const matchStatus = !statusFilter || r.status === statusFilter;
+                        return matchSearch && matchStatus;
+                    });
+                }
+                
+                return [];
+            },
+
+            searchData() {
+                this.renderCurrentPage();
+            },
+
+            clearSearch() {
+                const inputs = ['searchDashboard', 'searchTransaksi', 'searchProses', 'searchRekap'];
+                inputs.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                if (document.getElementById('statusFilter')) {
+                    document.getElementById('statusFilter').value = '';
+                }
+                if (document.getElementById('statusFilterRekap')) {
+                    document.getElementById('statusFilterRekap').value = '';
+                }
+            },
+
+            openModal(type, data = null) {
+                this.currentEdit = data;
+                
+                if (type === 'dashboard') {
+                    document.getElementById('dashboardModalTitle').textContent = 
+                        data ? 'Edit Data Satker' : 'Tambah Data Satker';
+                    document.getElementById('kodeSatkerDash').value = data?.kode_satker || '';
+                    document.getElementById('namaSatkerDash').value = data?.nama_satker || '';
+                    document.getElementById('upRM').value = data?.nominal || '';
+                    document.getElementById('nomorWA').value = data?.nomor_ws || '';
+                    document.getElementById('dashboardModal').classList.add('active');
+                }
+                else if (type === 'transaksi') {
+                    document.getElementById('transaksiModalTitle').textContent = 
+                        data ? 'Edit Data Transaksi' : 'Tambah Data Transaksi';
+                    document.getElementById('tglPembelian').value = data?.tanggal_pembelian || '';
+                    document.getElementById('kppn').value = data?.kppn || '';
+                    document.getElementById('kodeSatker').value = data?.kode_satker || '';
+                    document.getElementById('satker').value = data?.satuan_kerja || '';
+                    document.getElementById('pejabat').value = data?.pejabat_pengadaan || '';
+                    document.getElementById('produk').value = data?.produk || '';
+                    document.getElementById('totalNominal').value = data?.total_nominal || '';
+                    document.getElementById('noRekening').value = data?.nomor_rekening || '';
+                    document.getElementById('noInvoice').value = data?.nomor_invoice || '';
+                    document.getElementById('metodeBayar').value = data?.metode_bayar || 'VA';
+                    document.getElementById('statusTransaksi').value = data?.status_transaksi || 'Pending';
+                    document.getElementById('tglDeadline').value = data?.tanggal_deadline || '';
+                    document.getElementById('tglJatuhTempo').value = data?.tanggal_jatuh_tempo || '';
+                    document.getElementById('tglCheckout').value = data?.tanggal_checkout || '';
+                    document.getElementById('tglKirim').value = data?.tanggal_kirim || '';
+                    document.getElementById('tglTerima').value = data?.tanggal_terima || '';
+                    document.getElementById('tglBayar').value = data?.tanggal_bayar || '';
+                    document.getElementById('transaksiModal').classList.add('active');
+                }
+            },
+
+            closeModal(type) {
+                const modals = {
+                    'dashboard': 'dashboardModal',
+                    'transaksi': 'transaksiModal',
+                    'whatsapp': 'whatsappModal'
+                };
+                document.getElementById(modals[type]).classList.remove('active');
+                this.currentEdit = null;
+            },
+
+            async saveDashboard(event) {
+                event.preventDefault();
+                
+                const data = {
+                    kode_satker: document.getElementById('kodeSatkerDash').value,
+                    nama_satker: document.getElementById('namaSatkerDash').value,
+                    nominal: parseFloat(document.getElementById('upRM').value) || 0,
+                    nomor_ws: document.getElementById('nomorWA').value
+                };
+
+                try {
+                    if (this.currentEdit) {
+                        const { error } = await supabaseClient
+                            .from('tbl_satker')
+                            .update(data)
+                            .eq('id_satker', this.currentEdit.id_satker);
+                        
+                        if (error) throw error;
+                    } else {
+                        const { error } = await supabaseClient
+                            .from('tbl_satker')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                    }
+
+                    await this.loadDashboardData();
+                    this.calculateSheetProses();
+                    this.calculateRekapDigipay();
+                    this.renderAll();
+                    this.updateStats();
+                    this.closeModal('dashboard');
+                    alert('✅ Data satker berhasil disimpan!');
+                } catch (err) {
+                    console.error('Error saving satker:', err);
+                    alert('❌ Gagal menyimpan data: ' + err.message);
+                }
+            },
+
+            editDashboard(id) {
+                const data = this.dashboardData.find(d => d.id_satker === id);
+                if (data) {
+                    this.openModal('dashboard', data);
+                }
+            },
+
+            async saveTransaksi(event) {
+                event.preventDefault();
+                
+                const data = {
+                    tanggal_pembelian: document.getElementById('tglPembelian').value,
+                    kppn: document.getElementById('kppn').value,
+                    kode_satker: document.getElementById('kodeSatker').value,
+                    satuan_kerja: document.getElementById('satker').value,
+                    pejabat_pengadaan: document.getElementById('pejabat').value,
+                    produk: document.getElementById('produk').value,
+                    total_nominal: parseFloat(document.getElementById('totalNominal').value) || 0,
+                    nomor_rekening: document.getElementById('noRekening').value,
+                    nomor_invoice: document.getElementById('noInvoice').value,
+                    metode_bayar: document.getElementById('metodeBayar').value,
+                    status_transaksi: document.getElementById('statusTransaksi').value,
+                    tanggal_deadline: document.getElementById('tglDeadline').value,
+                    tanggal_jatuh_tempo: document.getElementById('tglJatuhTempo').value,
+                    tanggal_checkout: document.getElementById('tglCheckout').value,
+                    tanggal_kirim: document.getElementById('tglKirim').value,
+                    tanggal_terima: document.getElementById('tglTerima').value,
+                    tanggal_bayar: document.getElementById('tglBayar').value
+                };
+
+                try {
+                    if (this.currentEdit) {
+                        const { error } = await supabaseClient
+                            .from('tbl_transaksi')
+                            .update(data)
+                            .eq('no', this.currentEdit.no);
+                        
+                        if (error) throw error;
+                    } else {
+                        const { error } = await supabaseClient
+                            .from('tbl_transaksi')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                    }
+
+                    await this.loadTransaksiData();
+                    this.calculateSheetProses();
+                    this.calculateRekapDigipay();
+                    this.renderAll();
+                    this.updateStats();
+                    this.closeModal('transaksi');
+                    alert('✅ Data transaksi berhasil disimpan!');
+                } catch (err) {
+                    console.error('Error saving transaksi:', err);
+                    alert('❌ Gagal menyimpan data: ' + err.message);
+                }
+            },
+
+            editTransaksi(id) {
+                const data = this.transaksiData.find(t => t.no === id);
+                if (data) {
+                    this.openModal('transaksi', data);
+                }
+            },
+
+            async deleteTransaksi(id) {
+                if (confirm('Hapus transaksi ini?')) {
+                    try {
+                        const { error } = await supabaseClient
+                            .from('tbl_transaksi')
+                            .delete()
+                            .eq('no', id);
+                        
+                        if (error) throw error;
+
+                        await this.loadTransaksiData();
+                        this.calculateSheetProses();
+                        this.calculateRekapDigipay();
+                        this.renderAll();
+                        this.updateStats();
+                        alert('✅ Data transaksi berhasil dihapus!');
+                    } catch (err) {
+                        console.error('Error deleting transaksi:', err);
+                        alert('❌ Gagal menghapus data: ' + err.message);
+                    }
+                }
+            },
+
+            prepareWhatsApp(id) {
+                const satker = this.dashboardData.find(d => d.id_satker === id);
+                if (!satker) return;
+                
+                const proses = this.sheetProsesData.find(p => p.kodeSatker === satker.kode_satker);
+                
+                const message = proses && proses.status === 'SUDAH'
+                    ? `Kami memberikan apresiasi kepada ${satker.nama_satker} yang telah mengimplementasikan Digipay.\n\nSampai saat ini telah melakukan ${proses.prosesTransaksi} proses transaksi dan ${proses.transaksi} transaksi berhasil.\n\nMohon terus lakukan optimalisasi digitalisasi pembayaran.`
+                    : `Berdasarkan monitoring, ${satker.nama_satker} belum mengimplementasikan Digipay.\n\nSesuai Nota Dinas Direktur Pengelolaan Kas Negara, setiap satker ditargetkan minimal 2 transaksi.\n\nHubungi CSO KPPN: 081349358202`;
+                
+                document.getElementById('waSatkerName').value = satker.nama_satker;
+                document.getElementById('waNumber').value = satker.nomor_ws || '';
+                document.getElementById('waMessage').value = message;
+                document.getElementById('whatsappModal').classList.add('active');
+            },
+
+            sendWhatsApp(event) {
+                event.preventDefault();
+                const number = document.getElementById('waNumber').value;
+                const message = document.getElementById('waMessage').value;
+                window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, '_blank');
+                this.closeModal('whatsapp');
+            }
+        };
+
+        // Jalankan aplikasi saat DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, starting app...');
+            app.init();
+        });
+    </script>
+</body>
+</html>
