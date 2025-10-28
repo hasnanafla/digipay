@@ -458,19 +458,19 @@
         </div>
         <div class="sidebar-menu">
             <div class="menu-item active" data-page="dashboard">
-                <span class="menu-icon">📊</span>
+                <span class="menu-icon"></span>
                 <span>Dashboard</span>
             </div>
             <div class="menu-item" data-page="data-transaksi">
-                <span class="menu-icon">💳</span>
+                <span class="menu-icon"></span>
                 <span>Data Transaksi</span>
             </div>
             <div class="menu-item" data-page="sheet-proses">
-                <span class="menu-icon">⚙️</span>
+                <span class="menu-icon"></span>
                 <span>Proses</span>
             </div>
             <div class="menu-item" data-page="rekap-digipay">
-                <span class="menu-icon">📈</span>
+                <span class="menu-icon"></span>
                 <span>Rekap Digipay</span>
             </div>
         </div>
@@ -479,7 +479,6 @@
     <div class="main-wrapper">
         <div class="container">
             
-            <!-- Dashboard Page -->
             <div id="dashboard" class="page-content active">
                 <div class="page-header">
                     <h1>Dashboard Satker</h1>
@@ -508,7 +507,7 @@
                 <div class="content-card">
                     <div class="toolbar">
                         <div class="search-box">
-                            <span class="search-icon">🔍</span>
+                            <span class="search-icon"></span>
                             <input type="text" id="searchDashboard" placeholder="Cari satker...">
                         </div>
                         <button class="btn btn-primary" id="btnAddDashboard">
@@ -536,7 +535,6 @@
                 </div>
             </div>
 
-            <!-- Data Transaksi Page -->
             <div id="data-transaksi" class="page-content">
                 <div class="page-header">
                     <h1>Data Transaksi</h1>
@@ -546,7 +544,7 @@
                 <div class="content-card">
                     <div class="toolbar">
                         <div class="search-box">
-                            <span class="search-icon">🔍</span>
+                            <span class="search-icon"></span>
                             <input type="text" id="searchTransaksi" placeholder="Cari...">
                         </div>
                         <button class="btn btn-primary" id="btnAddTransaksi">
@@ -586,7 +584,6 @@
                 </div>
             </div>
 
-            <!-- Sheet Proses Page -->
             <div id="sheet-proses" class="page-content">
                 <div class="page-header">
                     <h1>Proses</h1>
@@ -595,7 +592,7 @@
                 <div class="content-card">
                     <div class="toolbar">
                         <div class="search-box">
-                            <span class="search-icon">🔍</span>
+                            <span class="search-icon"></span>
                             <input type="text" id="searchProses" placeholder="Cari...">
                         </div>
                         <select id="statusFilter">
@@ -625,7 +622,6 @@
                 </div>
             </div>
 
-            <!-- Rekap Digipay Page -->
             <div id="rekap-digipay" class="page-content">
                 <div class="page-header">
                     <h1>Rekap Digipay</h1>
@@ -635,7 +631,7 @@
                 <div class="content-card">
                     <div class="toolbar">
                         <div class="search-box">
-                            <span class="search-icon">🔍</span>
+                            <span class="search-icon"></span>
                             <input type="text" id="searchRekap" placeholder="Cari...">
                         </div>
                         <select id="statusFilterRekap">
@@ -670,7 +666,6 @@
         </div>
     </div>
 
-    <!-- Modal Dashboard (Satker) -->
     <div id="dashboardModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -679,11 +674,11 @@
             </div>
             <form id="dashboardForm">
                 <div class="form-group">
-                    <label>Kode Satker *</label>
+                    <label>Kode Satker</label>
                     <input type="text" id="kodeSatkerDash" required>
                 </div>
                 <div class="form-group">
-                    <label>Nama Satker *</label>
+                    <label>Nama Satker</label>
                     <input type="text" id="namaSatkerDash" required>
                 </div>
                 <div class="form-group">
@@ -702,7 +697,6 @@
         </div>
     </div>
 
-    <!-- Modal Transaksi -->
     <div id="transaksiModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -712,37 +706,37 @@
             <form id="transaksiForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Tanggal Pembelian *</label>
+                        <label>Tanggal Pembelian</label>
                         <input type="date" id="tglPembelian" required>
                     </div>
                     <div class="form-group">
-                        <label>KPPN *</label>
+                        <label>KPPN</label>
                         <input type="text" id="kppn" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Kode Satker *</label>
+                        <label>Kode Satker</label>
                         <input type="text" id="kodeSatker" required>
                     </div>
                     <div class="form-group">
-                        <label>Satuan Kerja *</label>
+                        <label>Satuan Kerja</label>
                         <input type="text" id="satker" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Pejabat Pengadaan *</label>
+                        <label>Pejabat Pengadaan</label>
                         <input type="text" id="pejabat" required>
                     </div>
                     <div class="form-group">
-                        <label>Produk *</label>
+                        <label>Produk</label>
                         <input type="text" id="produk" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Total Nominal *</label>
+                        <label>Total Nominal</label>
                         <input type="number" id="totalNominal" required>
                     </div>
                     <div class="form-group">
@@ -752,15 +746,14 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>No Invoice *</label>
+                        <label>No Invoice</label>
                         <input type="text" id="noInvoice" required>
                     </div>
                     <div class="form-group">
                         <label>Metode Bayar</label>
                         <select id="metodeBayar">
                             <option value="VA">VA</option>
-                            <option value="Transfer">Transfer</option>
-                            <option value="Tunai">Tunai</option>
+                            <option value="Transfer">KKP</option>
                         </select>
                     </div>
                 </div>
@@ -810,7 +803,6 @@
         </div>
     </div>
 
-    <!-- Modal WhatsApp -->
     <div id="whatsappModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -833,7 +825,7 @@
                 <div class="modal-actions">
                     <button type="button" class="btn btn-cancel" id="cancelWhatsapp">Batal</button>
                     <button type="submit" class="btn btn-success">
-                        <span>📱</span> Kirim WhatsApp
+                        <span></span> Kirim WhatsApp
                     </button>
                 </div>
             </form>
@@ -841,7 +833,6 @@
     </div>
 
     <script>
-        // Konfigurasi Supabase
         const SUPABASE_URL = 'https://tpmmpzsujmhadmsaynsa.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwbW1wenN1am1oYWRtc2F5bnNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2MzQ0NDcsImV4cCI6MjA3NTIxMDQ0N30.x91ksouGDFhe7MiRFEMD-geLHHMgK1VkrNzzIlda9YI';
         
@@ -858,7 +849,7 @@
             rekapDigipayData: [],
 
             async init() {
-                console.log('🚀 Inisialisasi aplikasi...');
+                console.log('Inisialisasi aplikasi...');
                 try {
                     await this.loadDashboardData();
                     await this.loadTransaksiData();
@@ -867,15 +858,15 @@
                     this.renderAll();
                     this.updateStats();
                     this.setupEventListeners();
-                    console.log('✅ Aplikasi berhasil diinisialisasi');
+                    console.log('Aplikasi berhasil diinisialisasi');
                 } catch (error) {
-                    console.error('❌ Error saat inisialisasi:', error);
+                    console.error('Error saat inisialisasi:', error);
                 }
             },
 
             async loadDashboardData() {
                 try {
-                    console.log('📥 Memuat data satker...');
+                    console.log('Memuat data satker...');
                     const { data, error } = await supabaseClient
                         .from('tbl_satker')
                         .select('*')
@@ -886,7 +877,7 @@
                     this.dashboardData = data || [];
                     console.log(`✓ Berhasil memuat ${this.dashboardData.length} data satker`);
                 } catch (err) {
-                    console.error('❌ Error loading satker:', err);
+                    console.error('X Error loading satker:', err);
                     document.getElementById('dashboardTableBody').innerHTML = 
                         '<tr><td colspan="6" class="error">Gagal memuat data: ' + err.message + '</td></tr>';
                 }
@@ -894,7 +885,7 @@
 
             async loadTransaksiData() {
                 try {
-                    console.log('📥 Memuat data transaksi...');
+                    console.log('Memuat data transaksi...');
                     const { data, error } = await supabaseClient
                         .from('tbl_transaksi')
                         .select('*')
@@ -905,14 +896,13 @@
                     this.transaksiData = data || [];
                     console.log(`✓ Berhasil memuat ${this.transaksiData.length} data transaksi`);
                 } catch (err) {
-                    console.error('❌ Error loading transaksi:', err);
+                    console.error('X Error loading transaksi:', err);
                     document.getElementById('transaksiTableBody').innerHTML = 
                         '<tr><td colspan="18" class="error">Gagal memuat data: ' + err.message + '</td></tr>';
                 }
             },
 
             setupEventListeners() {
-                // Menu navigation
                 document.querySelectorAll('.menu-item').forEach(item => {
                     item.addEventListener('click', (e) => {
                         const page = e.currentTarget.getAttribute('data-page');
@@ -920,26 +910,21 @@
                     });
                 });
 
-                // Button events
                 document.getElementById('btnAddDashboard').addEventListener('click', () => this.openModal('dashboard'));
                 document.getElementById('btnAddTransaksi').addEventListener('click', () => this.openModal('transaksi'));
                 
-                // Close modal events
                 document.getElementById('closeDashboardModal').addEventListener('click', () => this.closeModal('dashboard'));
                 document.getElementById('closeTransaksiModal').addEventListener('click', () => this.closeModal('transaksi'));
                 document.getElementById('closeWhatsappModal').addEventListener('click', () => this.closeModal('whatsapp'));
                 
-                // Cancel button events
                 document.getElementById('cancelDashboard').addEventListener('click', () => this.closeModal('dashboard'));
                 document.getElementById('cancelTransaksi').addEventListener('click', () => this.closeModal('transaksi'));
                 document.getElementById('cancelWhatsapp').addEventListener('click', () => this.closeModal('whatsapp'));
                 
-                // Form submit events
                 document.getElementById('dashboardForm').addEventListener('submit', (e) => this.saveDashboard(e));
                 document.getElementById('transaksiForm').addEventListener('submit', (e) => this.saveTransaksi(e));
                 document.getElementById('whatsappForm').addEventListener('submit', (e) => this.sendWhatsApp(e));
                 
-                // Search events
                 document.getElementById('searchDashboard').addEventListener('input', () => this.searchData());
                 document.getElementById('searchTransaksi').addEventListener('input', () => this.searchData());
                 document.getElementById('searchProses').addEventListener('input', () => this.searchData());
@@ -1089,8 +1074,8 @@ tbody.innerHTML = data.map((d, index) => `
         <td>Rp ${(d.nominal || 0).toLocaleString('id-ID')}</td>
         <td>${d.nomor_wa || '-'}</td>
         <td>
-            <button class="btn-icon btn-edit" onclick="app.editDashboard('${d.kode_satker}')">✏️</button>
-            <button class="btn-icon btn-whatsapp" onclick="app.prepareWhatsApp('${d.kode_satker}')">📱</button>
+            <button class="btn-icon btn-edit" onclick="app.editDashboard('${d.kode_satker}')">edit</button>
+            <button class="btn-icon btn-whatsapp" onclick="app.prepareWhatsApp('${d.kode_satker}')">notif</button>
         </td>
     </tr>
 `).join('');
@@ -1129,8 +1114,8 @@ tbody.innerHTML = data.map((d, index) => `
                         <td>${t.tanggal_terima || '-'}</td>
                         <td>${t.tanggal_bayar || '-'}</td>
                         <td>
-                            <button class="btn-icon btn-edit" onclick="app.editTransaksi(${t.no})">✏️</button>
-                            <button class="btn-icon btn-delete" onclick="app.deleteTransaksi(${t.no})">🗑️</button>
+                            <button class="btn-icon btn-edit" onclick="app.editTransaksi(${t.no})">edit</button>
+                            <button class="btn-icon btn-delete" onclick="app.deleteTransaksi(${t.no})">hapus</button>
                         </td>
                     </tr>
                 `).join('');
@@ -1263,7 +1248,6 @@ tbody.innerHTML = data.map((d, index) => `
     const kodeSatkerInput = document.getElementById('kodeSatkerDash');
     kodeSatkerInput.value = data?.kode_satker || '';
     
-    // Jika mode edit, buat kode satker readonly
     if (data) {
         kodeSatkerInput.setAttribute('readonly', 'readonly');
         kodeSatkerInput.style.background = '#f8fafc';
@@ -1336,8 +1320,6 @@ async saveDashboard(event) {
             
             console.log('Update successful');
         } else {
-            // Mode Insert - Tambah data baru
-            // Cek dulu apakah kode_satker sudah ada
             console.log('Checking for duplicate kode_satker...');
             const { data: existing, error: checkError } = await supabaseClient
                 .from('tbl_satker')
@@ -1351,7 +1333,7 @@ async saveDashboard(event) {
             }
             
             if (existing) {
-                alert('❌ Kode Satker "' + data.kode_satker + '" sudah ada! Gunakan kode yang berbeda.');
+                alert('Kode Satker "' + data.kode_satker + '" sudah ada! Gunakan kode yang berbeda.');
                 return;
             }
             
@@ -1369,7 +1351,6 @@ async saveDashboard(event) {
             console.log('Insert successful');
         }
 
-        // Reload data dan update tampilan
         await this.loadDashboardData();
         this.calculateSheetProses();
         this.calculateRekapDigipay();
@@ -1378,11 +1359,11 @@ async saveDashboard(event) {
         this.closeModal('dashboard');
         
         const message = this.currentEdit ? 'diperbarui' : 'ditambahkan';
-        alert('✅ Data satker berhasil ' + message + '!');
+        alert('Data satker berhasil ' + message + '!');
         
     } catch (err) {
         console.error('Error saving satker:', err);
-        alert('❌ Gagal menyimpan data: ' + err.message);
+        alert('Gagal menyimpan data: ' + err.message);
     }
 },
 
@@ -1417,7 +1398,7 @@ editDashboard(kodeSatker) {
                 };
 
                 try {
-                    console.log('💾 Menyimpan transaksi:', data);
+                    console.log('Menyimpan transaksi:', data);
                     
                     if (this.currentEdit) {
                         const { data: result, error } = await supabaseClient
@@ -1427,7 +1408,7 @@ editDashboard(kodeSatker) {
                             .select();
                         
                         if (error) throw error;
-                        console.log('✅ Update transaksi berhasil:', result);
+                        console.log('Update transaksi berhasil:', result);
                     } else {
                         const { data: result, error } = await supabaseClient
                             .from('tbl_transaksi')
@@ -1435,7 +1416,7 @@ editDashboard(kodeSatker) {
                             .select();
                         
                         if (error) throw error;
-                        console.log('✅ Insert transaksi berhasil:', result);
+                        console.log('Insert transaksi berhasil:', result);
                     }
 
                     await this.loadTransaksiData();
@@ -1444,10 +1425,10 @@ editDashboard(kodeSatker) {
                     this.renderAll();
                     this.updateStats();
                     this.closeModal('transaksi');
-                    alert('✅ Data transaksi berhasil disimpan!');
+                    alert('Data transaksi berhasil disimpan!');
                 } catch (err) {
-                    console.error('❌ Error saving transaksi:', err);
-                    alert('❌ Gagal menyimpan data: ' + err.message);
+                    console.error('Error saving transaksi:', err);
+                    alert('Gagal menyimpan data: ' + err.message);
                 }
             },
 
@@ -1459,7 +1440,7 @@ editDashboard(kodeSatker) {
             },
 
             async deleteTransaksi(id) {
-                if (confirm('⚠️ Hapus transaksi ini?')) {
+                if (confirm('Hapus transaksi ini?')) {
                     try {
                         const { error } = await supabaseClient
                             .from('tbl_transaksi')
@@ -1473,10 +1454,10 @@ editDashboard(kodeSatker) {
                         this.calculateRekapDigipay();
                         this.renderAll();
                         this.updateStats();
-                        alert('✅ Data transaksi berhasil dihapus!');
+                        alert('Data transaksi berhasil dihapus!');
                     } catch (err) {
-                        console.error('❌ Error deleting transaksi:', err);
-                        alert('❌ Gagal menghapus data: ' + err.message);
+                        console.error("Error deleting transaksi:', err);
+                        alert('Gagal menghapus data: ' + err.message);
                     }
                 }
             },
@@ -1503,7 +1484,7 @@ prepareWhatsApp(kodeSatker) {
                 const message = document.getElementById('waMessage').value;
                 
                 if (!number) {
-                    alert('❌ Nomor WhatsApp harus diisi!');
+                    alert('Nomor WhatsApp harus diisi!');
                     return;
                 }
                 
@@ -1512,11 +1493,11 @@ prepareWhatsApp(kodeSatker) {
             }
         };
 
-        // Jalankan aplikasi saat DOM ready
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🌐 DOM loaded, starting app...');
+            console.log('DOM loaded, starting app...');
             app.init();
         });
     </script>
 </body>
 </html>
+
