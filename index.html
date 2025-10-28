@@ -696,7 +696,7 @@
             </form>
         </div>
     </div>
-
+xx
     <div id="transaksiModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -753,7 +753,8 @@
                         <label>Metode Bayar</label>
                         <select id="metodeBayar">
                             <option value="VA">VA</option>
-                            <option value="Transfer">KKP</option>
+                            <option value="Transfer">Transfer</option>
+                            <option value="Tunai">Tunai</option>
                         </select>
                     </div>
                 </div>
@@ -839,7 +840,6 @@
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Aplikasi Utama
         const app = {
             activePage: 'dashboard',
             currentEdit: null,
@@ -877,7 +877,7 @@
                     this.dashboardData = data || [];
                     console.log(`✓ Berhasil memuat ${this.dashboardData.length} data satker`);
                 } catch (err) {
-                    console.error('X Error loading satker:', err);
+                    console.error('Error loading satker:', err);
                     document.getElementById('dashboardTableBody').innerHTML = 
                         '<tr><td colspan="6" class="error">Gagal memuat data: ' + err.message + '</td></tr>';
                 }
@@ -896,7 +896,7 @@
                     this.transaksiData = data || [];
                     console.log(`✓ Berhasil memuat ${this.transaksiData.length} data transaksi`);
                 } catch (err) {
-                    console.error('X Error loading transaksi:', err);
+                    console.error('Error loading transaksi:', err);
                     document.getElementById('transaksiTableBody').innerHTML = 
                         '<tr><td colspan="18" class="error">Gagal memuat data: ' + err.message + '</td></tr>';
                 }
@@ -916,7 +916,7 @@
                 document.getElementById('closeDashboardModal').addEventListener('click', () => this.closeModal('dashboard'));
                 document.getElementById('closeTransaksiModal').addEventListener('click', () => this.closeModal('transaksi'));
                 document.getElementById('closeWhatsappModal').addEventListener('click', () => this.closeModal('whatsapp'));
-                
+        
                 document.getElementById('cancelDashboard').addEventListener('click', () => this.closeModal('dashboard'));
                 document.getElementById('cancelTransaksi').addEventListener('click', () => this.closeModal('transaksi'));
                 document.getElementById('cancelWhatsapp').addEventListener('click', () => this.closeModal('whatsapp'));
@@ -924,7 +924,7 @@
                 document.getElementById('dashboardForm').addEventListener('submit', (e) => this.saveDashboard(e));
                 document.getElementById('transaksiForm').addEventListener('submit', (e) => this.saveTransaksi(e));
                 document.getElementById('whatsappForm').addEventListener('submit', (e) => this.sendWhatsApp(e));
-                
+        
                 document.getElementById('searchDashboard').addEventListener('input', () => this.searchData());
                 document.getElementById('searchTransaksi').addEventListener('input', () => this.searchData());
                 document.getElementById('searchProses').addEventListener('input', () => this.searchData());
@@ -1306,7 +1306,6 @@ async saveDashboard(event) {
 
     try {
         if (this.currentEdit) {
-            // Mode Edit - Update data yang sudah ada
             console.log('Updating satker:', data);
             const { error } = await supabaseClient
                 .from('tbl_satker')
@@ -1456,7 +1455,7 @@ editDashboard(kodeSatker) {
                         this.updateStats();
                         alert('Data transaksi berhasil dihapus!');
                     } catch (err) {
-                        console.error("Error deleting transaksi:', err);
+                        console.error('Error deleting transaksi:', err);
                         alert('Gagal menghapus data: ' + err.message);
                     }
                 }
@@ -1500,4 +1499,3 @@ prepareWhatsApp(kodeSatker) {
     </script>
 </body>
 </html>
-
