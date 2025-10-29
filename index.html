@@ -1090,9 +1090,9 @@ tbody.innerHTML = data.map((d, index) => `
                     return;
                 }
                 
-                tbody.innerHTML = data.map(t => `
+                tbody.innerHTML = data.map((t, index) => `
                     <tr>
-                        <td>${t.no || '-'}</td>
+                        <td>${index + 1 || '-'}</td>
                         <td>${t.tanggal_pembelian || '-'}</td>
                         <td>${t.kppn || '-'}</td>
                         <td>${t.satuan_kerja || '-'}</td>
