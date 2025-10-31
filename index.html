@@ -968,12 +968,15 @@ xx
                     
                     grouped[trx.kode_satker].totalData++;
                     
-                    if (trx.status_transaksi === 'Berhasil' && trx.total_nominal > 0) {
-                        grouped[trx.kode_satker].jumlahTransaksi++;
-                        if (trx.metode_bayar === 'VA' && trx.tanggal_bayar) {
-                            grouped[trx.kode_satker].vaTerbayar++;
-                        }
-                    }
+                    // Hitung transaksi yang sudah dibayar (invoice & tanggal bayar terisi)
+if (trx.nomor_invoice && trx.tanggal_bayar) {
+    grouped[trx.kode_satker].jumlahTransaksi++;
+}
+
+// Hitung VA terbayar (metode VA + tanggal bayar terisi)
+if (trx.metode_bayar === 'VA' && trx.tanggal_bayar) {
+    grouped[trx.kode_satker].vaTerbayar++;
+}
                 });
                 
                 this.sheetProsesData = Object.values(grouped).map(item => ({
@@ -1002,14 +1005,18 @@ xx
                         };
                     }
                     
-                    grouped[trx.kode_satker].prosesTransaksi++;
-                    
-                    if (trx.status_transaksi === 'Berhasil' && trx.total_nominal > 0) {
-                        grouped[trx.kode_satker].transaksiKuitansi++;
-                        if (trx.metode_bayar === 'VA' && trx.tanggal_bayar) {
-                            grouped[trx.kode_satker].vaTerbayar++;
-                        }
-                    }
+                    // Hitung semua proses transaksi
+grouped[trx.kode_satker].prosesTransaksi++;
+
+// Hitung transaksi terbayar (invoice & tanggal bayar terisi)
+if (trx.nomor_invoice && trx.tanggal_bayar) {
+    grouped[trx.kode_satker].transaksiKuitansi++;
+}
+
+// Hitung VA terbayar (metode VA + tanggal bayar terisi)
+if (trx.metode_bayar === 'VA' && trx.tanggal_bayar) {
+    grouped[trx.kode_satker].vaTerbayar++;
+}
                 });
                 
                 this.rekapDigipayData = Object.values(grouped).map((item, index) => {
