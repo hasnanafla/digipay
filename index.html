@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KPPN Digipay Monitoring Sistem</title>
+    <title>KPPN Digipay Monitoring Sistem</title>hy62y
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -405,6 +407,57 @@
             background: #f8fafc;
         }
 
+        /* Autocomplete Styles */
+.autocomplete-container {
+    position: relative;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    border: 2px solid #2563eb;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 10000;
+    display: none;
+}
+
+.autocomplete-dropdown.active {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.autocomplete-item:hover {
+    background: #eff6ff;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item .code {
+    font-weight: 600;
+    color: #2563eb;
+    margin-bottom: 4px;
+}
+
+.autocomplete-item .name {
+    font-size: 13px;
+    color: #64748b;
+}
+
         .modal-actions {
             display: flex;
             gap: 12px;
@@ -448,7 +501,26 @@
                 grid-template-columns: 1fr;
             }
         }
+        .btn-print {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139,92,246,0.3);
+        }
+
+        @media print {
+            .toolbar, .btn { display: none; }
+        }
+        .form-group input[readonly],
+.form-group textarea[readonly] {
+    background: #f8fafc;
+}
     </style>
+    
 </head>
 <body>
     <div class="sidebar">
@@ -600,6 +672,10 @@
                             <option value="SUDAH">Sudah</option>
                             <option value="BELUM">Belum</option>
                         </select>
+                        <!-- TAMBAHKAN BARIS INI -->
+                        <button class="btn btn-print" onclick="app.printProses()">
+                            <span>🖨️</span> Cetak PDF
+                        </button>
                     </div>
 
                     <div class="table-container">
@@ -639,6 +715,10 @@
                             <option value="SUDAH">Sudah</option>
                             <option value="BELUM">Belum</option>
                         </select>
+                        <!-- TAMBAHKAN BARIS INI -->
+                        <button class="btn btn-print" onclick="app.printRekap()">
+                            <span>🖨️</span> Cetak PDF
+                        </button>
                     </div>
 
                     <div class="table-container">
@@ -705,25 +785,26 @@ xx
             </div>
             <form id="transaksiForm">
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Tanggal Pembelian</label>
-                        <input type="date" id="tglPembelian" required>
-                    </div>
-                    <div class="form-group">
-                        <label>KPPN</label>
-                        <input type="text" id="kppn" required>
-                    </div>
-                </div>
+    <div class="form-group">
+        <label>Tanggal Pembelian</label>
+        <input type="date" id="tglPembelian" required>
+    </div>
+   <div class="form-group">
+    <label>KPPN</label>
+    <input type="text" id="kppn" value="KPPN PEKALONGAN" placeholder="KPPN PEKALONGAN" required readonly>
+</div>
+</div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Kode Satker</label>
-                        <input type="text" id="kodeSatker" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Satuan Kerja</label>
-                        <input type="text" id="satker" required>
-                    </div>
-                </div>
+    <div class="form-group autocomplete-container">
+        <label>Kode Satker</label>
+        <input type="text" id="kodeSatker" required autocomplete="off" placeholder="Ketik atau pilih kode satker...">
+        <div id="kodeSatkerDropdown" class="autocomplete-dropdown"></div>
+    </div>
+    <div class="form-group">
+        <label>Satuan Kerja</label>
+        <input type="text" id="satker" required readonly>
+    </div>
+</div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Pejabat Pengadaan</label>
@@ -910,6 +991,7 @@ xx
                     });
                 });
 
+                
                 document.getElementById('btnAddDashboard').addEventListener('click', () => this.openModal('dashboard'));
                 document.getElementById('btnAddTransaksi').addEventListener('click', () => this.openModal('transaksi'));
                 
@@ -932,6 +1014,103 @@ xx
                 document.getElementById('statusFilter').addEventListener('change', () => this.searchData());
                 document.getElementById('statusFilterRekap').addEventListener('change', () => this.searchData());
             },
+
+            setupKodeSatkerAutocomplete() {
+    const input = document.getElementById('kodeSatker');
+    const dropdown = document.getElementById('kodeSatkerDropdown');
+    const satkerInput = document.getElementById('satker');
+    
+    // Hapus event listener lama dengan clone node
+    const newInput = input.cloneNode(true);
+    input.parentNode.replaceChild(newInput, input);
+    
+    // Update reference ke input baru
+    const kodeSatkerInput = document.getElementById('kodeSatker');
+    
+    // Event saat user mengetik
+    kodeSatkerInput.addEventListener('input', (e) => {
+        const value = e.target.value.toLowerCase();
+        
+        if (value.length === 0) {
+            dropdown.classList.remove('active');
+            satkerInput.value = '';
+            return;
+        }
+        
+        // Filter data satker
+        const filtered = this.dashboardData.filter(d => 
+            d.kode_satker.toLowerCase().includes(value) ||
+            d.nama_satker.toLowerCase().includes(value)
+        );
+        
+        if (filtered.length > 0) {
+            dropdown.innerHTML = filtered.map(d => `
+                <div class="autocomplete-item" data-kode="${d.kode_satker}" data-nama="${d.nama_satker}">
+                    <div class="code">${d.kode_satker}</div>
+                    <div class="name">${d.nama_satker}</div>
+                </div>
+            `).join('');
+            dropdown.classList.add('active');
+            
+            // Event click pada item dropdown
+            dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    kodeSatkerInput.value = item.dataset.kode;
+                    satkerInput.value = item.dataset.nama;
+                    dropdown.classList.remove('active');
+                });
+            });
+        } else {
+            dropdown.innerHTML = '<div style="padding: 12px; color: #64748b; text-align: center;">Tidak ada data</div>';
+            dropdown.classList.add('active');
+        }
+    });
+    
+    // Event focus - tampilkan semua opsi
+    kodeSatkerInput.addEventListener('focus', () => {
+        if (kodeSatkerInput.value.length === 0) {
+            dropdown.innerHTML = this.dashboardData.map(d => `
+                <div class="autocomplete-item" data-kode="${d.kode_satker}" data-nama="${d.nama_satker}">
+                    <div class="code">${d.kode_satker}</div>
+                    <div class="name">${d.nama_satker}</div>
+                </div>
+            `).join('');
+            dropdown.classList.add('active');
+            
+            dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    kodeSatkerInput.value = item.dataset.kode;
+                    satkerInput.value = item.dataset.nama;
+                    dropdown.classList.remove('active');
+                });
+            });
+        }
+    });
+    
+    // Tutup dropdown saat klik di luar
+    document.addEventListener('click', (e) => {
+        if (!kodeSatkerInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
+    
+    // Event saat input kehilangan focus
+    kodeSatkerInput.addEventListener('blur', () => {
+        setTimeout(() => {
+            const satker = this.dashboardData.find(d => d.kode_satker === kodeSatkerInput.value);
+            if (satker) {
+                satkerInput.value = satker.nama_satker;
+            } else if (kodeSatkerInput.value && !satkerInput.value) {
+                alert('Kode Satker tidak ditemukan! Silakan pilih dari daftar.');
+                kodeSatkerInput.value = '';
+            }
+        }, 300);
+    });
+},
 
             changePage(pageId) {
                 this.activePage = pageId;
@@ -1271,8 +1450,9 @@ tbody.innerHTML = data.map((d, index) => `
                 else if (type === 'transaksi') {
                     document.getElementById('transaksiModalTitle').textContent = 
                         data ? 'Edit Data Transaksi' : 'Tambah Data Transaksi';
+                    document.getElementById('kppn').value = 'KPPN PEKALONGAN';
                     document.getElementById('tglPembelian').value = data?.tanggal_pembelian || '';
-                    document.getElementById('kppn').value = data?.kppn || '';
+                    document.getElementById('kppn').value = data?.kppn || 'KPPN PEKALONGAN';
                     document.getElementById('kodeSatker').value = data?.kode_satker || '';
                     document.getElementById('satker').value = data?.satuan_kerja || '';
                     document.getElementById('pejabat').value = data?.pejabat_pengadaan || '';
@@ -1288,7 +1468,8 @@ tbody.innerHTML = data.map((d, index) => `
                     document.getElementById('tglKirim').value = data?.tanggal_kirim || '';
                     document.getElementById('tglTerima').value = data?.tanggal_terima || '';
                     document.getElementById('tglBayar').value = data?.tanggal_bayar || '';
-                    document.getElementById('transaksiModal').classList.add('active');
+this.setupKodeSatkerAutocomplete();
+document.getElementById('transaksiModal').classList.add('active');
                 }
             },
 
@@ -1496,8 +1677,223 @@ prepareWhatsApp(kodeSatker) {
                 
                 window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, '_blank');
                 this.closeModal('whatsapp');
+            },
+            printProses() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('landscape');
+                
+                // Header
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.text('LAPORAN PROSES TRANSAKSI DIGIPAY', 148, 15, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text('KPPN Pekalongan', 148, 22, { align: 'center' });
+                
+                doc.setFontSize(10);
+                const today = new Date().toLocaleDateString('id-ID', { 
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                });
+                doc.text(`Tanggal Cetak: ${today}`, 148, 28, { align: 'center' });
+                
+                // Line separator
+                doc.setLineWidth(0.5);
+                doc.line(14, 32, 282, 32);
+                
+                // Filter data
+                const data = this.getFilteredData();
+                
+                // Summary statistics
+                const sudah = data.filter(d => d.status === 'SUDAH').length;
+                const belum = data.filter(d => d.status === 'BELUM').length;
+                const totalProses = data.reduce((sum, d) => sum + d.prosesTransaksi, 0);
+                const totalTransaksi = data.reduce((sum, d) => sum + d.transaksi, 0);
+                const totalVA = data.reduce((sum, d) => sum + d.vaTerbayar, 0);
+                
+                doc.setFontSize(9);
+                doc.text(`Total Satker: ${data.length} | Sudah Implementasi: ${sudah} | Belum Implementasi: ${belum}`, 14, 38);
+                doc.text(`Total Proses: ${totalProses} | Total Transaksi: ${totalTransaksi} | Total VA Terbayar: ${totalVA}`, 14, 43);
+                
+                // Table
+                const tableData = data.map((item, index) => [
+                    index + 1,
+                    item.kodeSatker,
+                    item.namaSatker,
+                    item.status,
+                    item.prosesTransaksi,
+                    item.transaksi,
+                    item.vaTerbayar
+                ]);
+                
+                doc.autoTable({
+                    startY: 48,
+                    head: [['No', 'Kode', 'Nama Satker', 'Status', 'Proses', 'Transaksi', 'VA Terbayar']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: { 
+                        fillColor: [30, 64, 175],
+                        fontSize: 9,
+                        fontStyle: 'bold',
+                        halign: 'center'
+                    },
+                    bodyStyles: { 
+                        fontSize: 8,
+                        cellPadding: 3
+                    },
+                    columnStyles: {
+                        0: { halign: 'center', cellWidth: 12 },
+                        1: { halign: 'center', cellWidth: 25 },
+                        2: { cellWidth: 100 },
+                        3: { halign: 'center', cellWidth: 25 },
+                        4: { halign: 'center', cellWidth: 25 },
+                        5: { halign: 'center', cellWidth: 25 },
+                        6: { halign: 'center', cellWidth: 30 }
+                    },
+                    didDrawCell: (data) => {
+                        if (data.column.index === 3 && data.section === 'body') {
+                            const status = data.cell.raw;
+                            if (status === 'SUDAH') {
+                                doc.setFillColor(16, 185, 129);
+                            } else {
+                                doc.setFillColor(239, 68, 68);
+                            }
+                            doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontSize(8);
+                            doc.text(status, data.cell.x + data.cell.width / 2, data.cell.y + data.cell.height / 2, {
+                                align: 'center',
+                                baseline: 'middle'
+                            });
+                            doc.setTextColor(0, 0, 0);
+                        }
+                    }
+                });
+                
+                // Footer
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.text(`Halaman ${i} dari ${pageCount}`, 148, 200, { align: 'center' });
+                    doc.text('Dicetak dari Sistem Monitoring KPPN Digipay', 148, 205, { align: 'center' });
+                }
+                
+                doc.save(`Laporan-Proses-${new Date().toISOString().split('T')[0]}.pdf`);
+            },
+
+            printRekap() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('landscape');
+                
+                // Header
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.text('LAPORAN REKAP DIGIPAY', 148, 15, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text('KPPN Pekalongan', 148, 22, { align: 'center' });
+                
+                doc.setFontSize(10);
+                const today = new Date().toLocaleDateString('id-ID', { 
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                });
+                doc.text(`Tanggal Cetak: ${today}`, 148, 28, { align: 'center' });
+                
+                // Line separator
+                doc.setLineWidth(0.5);
+                doc.line(14, 32, 282, 32);
+                
+                // Filter data
+                const data = this.getFilteredData();
+                
+                // Summary statistics
+                const sudah = data.filter(d => d.status === 'SUDAH').length;
+                const belum = data.filter(d => d.status === 'BELUM').length;
+                const totalNominal = data.reduce((sum, d) => sum + (d.upRM || 0), 0);
+                const totalProses = data.reduce((sum, d) => sum + d.prosesTransaksi, 0);
+                const totalVA = data.reduce((sum, d) => sum + d.vaTerbayar, 0);
+                
+                doc.setFontSize(9);
+                doc.text(`Total Satker: ${data.length} | Sudah: ${sudah} | Belum: ${belum} | Total Nominal: Rp ${totalNominal.toLocaleString('id-ID')}`, 14, 38);
+                doc.text(`Total Proses: ${totalProses} | Total VA Terbayar: ${totalVA}`, 14, 43);
+                
+                // Table
+                const tableData = data.map(item => [
+                    item.no,
+                    item.kodeSatker,
+                    item.namaSatker,
+                    `Rp ${(item.upRM || 0).toLocaleString('id-ID')}`,
+                    item.prosesTransaksi,
+                    item.vaTerbayar,
+                    item.transaksiKuitansi,
+                    item.status,
+                    item.keterangan || '-'
+                ]);
+                
+                doc.autoTable({
+                    startY: 48,
+                    head: [['No', 'Kode', 'Satker', 'Nominal', 'Proses', 'VA', 'Transaksi', 'Status', 'Keterangan']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: { 
+                        fillColor: [30, 64, 175],
+                        fontSize: 8,
+                        fontStyle: 'bold',
+                        halign: 'center'
+                    },
+                    bodyStyles: { 
+                        fontSize: 7,
+                        cellPadding: 2
+                    },
+                    columnStyles: {
+                        0: { halign: 'center', cellWidth: 10 },
+                        1: { halign: 'center', cellWidth: 20 },
+                        2: { cellWidth: 60 },
+                        3: { halign: 'right', cellWidth: 30 },
+                        4: { halign: 'center', cellWidth: 15 },
+                        5: { halign: 'center', cellWidth: 15 },
+                        6: { halign: 'center', cellWidth: 20 },
+                        7: { halign: 'center', cellWidth: 20 },
+                        8: { cellWidth: 52 }
+                    },
+                    didDrawCell: (data) => {
+                        if (data.column.index === 7 && data.section === 'body') {
+                            const status = data.cell.raw;
+                            if (status === 'SUDAH') {
+                                doc.setFillColor(16, 185, 129);
+                            } else {
+                                doc.setFillColor(239, 68, 68);
+                            }
+                            doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontSize(7);
+                            doc.text(status, data.cell.x + data.cell.width / 2, data.cell.y + data.cell.height / 2, {
+                                align: 'center',
+                                baseline: 'middle'
+                            });
+                            doc.setTextColor(0, 0, 0);
+                        }
+                    }
+                });
+                
+                // Footer
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.text(`Halaman ${i} dari ${pageCount}`, 148, 200, { align: 'center' });
+                    doc.text('Dicetak dari Sistem Monitoring KPPN Digipay', 148, 205, { align: 'center' });
+                }
+                
+                doc.save(`Laporan-Rekap-Digipay-${new Date().toISOString().split('T')[0]}.pdf`);
             }
+        
+            
         };
+        
+        
 
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM loaded, starting app...');
@@ -1505,4 +1901,5 @@ prepareWhatsApp(kodeSatker) {
         });
     </script>
 </body>
+
 </html>
