@@ -3,6 +3,7 @@
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KPPN Digipay Monitoring Sistem</title>hy62y
@@ -585,6 +586,9 @@
                         <button class="btn btn-primary" id="btnAddDashboard">
                             <span>+</span> Tambah Satker
                         </button>
+                         <button class="btn btn-success" onclick="app.showImportModal('satker')">
+        <span>📥</span> Import Excel
+    </button>
                     </div>
 
                     <div class="table-container">
@@ -622,6 +626,9 @@
                         <button class="btn btn-primary" id="btnAddTransaksi">
                             <span>+</span> Tambah Transaksi
                         </button>
+                        <button class="btn btn-success" onclick="app.showImportModal('transaksi')">
+        <span>📥</span> Import Excel
+    </button>
                     </div>
 
                     <div class="table-container">
@@ -676,6 +683,9 @@
                         <button class="btn btn-print" onclick="app.printProses()">
                             <span>🖨️</span> Cetak PDF
                         </button>
+                        <button class="btn btn-success" onclick="app.exportProsesExcel()">
+    <span>📊</span> Export Excel
+</button>
                     </div>
 
                     <div class="table-container">
@@ -719,6 +729,9 @@
                         <button class="btn btn-print" onclick="app.printRekap()">
                             <span>🖨️</span> Cetak PDF
                         </button>
+                        <button class="btn btn-success" onclick="app.exportRekapExcel()">
+    <span>📊</span> Export Excel
+</button>
                     </div>
 
                     <div class="table-container">
@@ -913,6 +926,42 @@ xx
             </form>
         </div>
     </div>
+    <!-- Modal Import Excel -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="importModalTitle">Import Data dari Excel</h2>
+                <button class="close-btn" id="closeImportModal">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <p style="color: #64748b; margin-bottom: 15px;">
+                    <strong>Format Excel yang dibutuhkan:</strong>
+                </p>
+                <div id="importInstructions" style="background: #f8fafc; padding: 15px; border-radius: 8px; font-size: 13px;">
+                    <!-- Instruksi akan diisi dinamis -->
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Pilih File Excel (.xlsx atau .xls)</label>
+                <input type="file" id="excelFile" accept=".xlsx,.xls" style="padding: 10px; border: 2px dashed #2563eb; background: #eff6ff;">
+            </div>
+            <div id="previewContainer" style="display: none; margin-top: 20px;">
+                <h3 style="color: #2563eb; margin-bottom: 10px;">Preview Data (5 baris pertama)</h3>
+                <div style="max-height: 300px; overflow: auto;">
+                    <table id="previewTable" style="width: 100%; font-size: 12px;">
+                        <!-- Preview akan diisi di sini -->
+                    </table>
+                </div>
+                <p id="previewInfo" style="margin-top: 10px; color: #64748b; font-size: 13px;"></p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-cancel" id="cancelImport">Batal</button>
+                <button type="button" class="btn btn-primary" id="btnProcessImport" disabled>
+                    <span>⬆️</span> Proses Import
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://tpmmpzsujmhadmsaynsa.supabase.co';
@@ -1002,6 +1051,12 @@ xx
                 document.getElementById('cancelDashboard').addEventListener('click', () => this.closeModal('dashboard'));
                 document.getElementById('cancelTransaksi').addEventListener('click', () => this.closeModal('transaksi'));
                 document.getElementById('cancelWhatsapp').addEventListener('click', () => this.closeModal('whatsapp'));
+
+                // Event listeners untuk import
+                document.getElementById('closeImportModal').addEventListener('click', () => this.closeModal('import'));
+                document.getElementById('cancelImport').addEventListener('click', () => this.closeModal('import'));
+                document.getElementById('excelFile').addEventListener('change', () => this.previewImport());
+                document.getElementById('btnProcessImport').addEventListener('click', () => this.processImport());
                 
                 document.getElementById('dashboardForm').addEventListener('submit', (e) => this.saveDashboard(e));
                 document.getElementById('transaksiForm').addEventListener('submit', (e) => this.saveTransaksi(e));
@@ -1477,7 +1532,8 @@ document.getElementById('transaksiModal').classList.add('active');
                 const modals = {
                     'dashboard': 'dashboardModal',
                     'transaksi': 'transaksiModal',
-                    'whatsapp': 'whatsappModal'
+                    'whatsapp': 'whatsappModal',
+                    'import': 'importModal'
                 };
                 document.getElementById(modals[type]).classList.remove('active');
                 this.currentEdit = null;
@@ -1677,6 +1733,396 @@ prepareWhatsApp(kodeSatker) {
                 
                 window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, '_blank');
                 this.closeModal('whatsapp');
+            },
+
+            // ========== FITUR IMPORT EXCEL ==========
+
+            showImportModal(type) {
+                this.importType = type;
+                
+                // Set judul dan instruksi
+                if (type === 'satker') {
+                    document.getElementById('importModalTitle').textContent = 'Import Data Satker dari Excel';
+                    document.getElementById('importInstructions').innerHTML = `
+                        <p><strong>Kolom yang harus ada (urutan harus sesuai):</strong></p>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>kode_satker</strong> - Kode Satker (wajib)</li>
+                            <li><strong>nama_satker</strong> - Nama Satker (wajib)</li>
+                            <li><strong>nominal</strong> - Nominal (angka, opsional)</li>
+                            <li><strong>nomor_wa</strong> - Nomor WhatsApp (opsional)</li>
+                        </ol>
+                        <p style="margin-top: 10px;"><em>Contoh: Baris pertama adalah header, baris kedua dst adalah data</em></p>
+                    `;
+                } else {
+                    document.getElementById('importModalTitle').textContent = 'Import Data Transaksi dari Excel';
+                    document.getElementById('importInstructions').innerHTML = `
+                        <p><strong>Kolom yang harus ada (urutan harus sesuai):</strong></p>
+                        <ol style="margin: 10px 0; padding-left: 20px; columns: 2;">
+                            <li>tanggal_pembelian</li>
+                            <li>kppn</li>
+                            <li>kode_satker</li>
+                            <li>satuan_kerja</li>
+                            <li>pejabat_pengadaan</li>
+                            <li>produk</li>
+                            <li>total_nominal</li>
+                            <li>nomor_rekening</li>
+                            <li>nomor_invoice</li>
+                            <li>metode_bayar</li>
+                            <li>status_transaksi</li>
+                            <li>tanggal_deadline</li>
+                            <li>tanggal_jatuh_tempo</li>
+                            <li>tanggal_checkout</li>
+                            <li>tanggal_kirim</li>
+                            <li>tanggal_terima</li>
+                            <li>tanggal_bayar</li>
+                        </ol>
+                        <p style="margin-top: 10px;"><em>Format tanggal: YYYY-MM-DD (contoh: 2025-01-15)</em></p>
+                    `;
+                }
+                
+                // Reset form
+                document.getElementById('excelFile').value = '';
+                document.getElementById('previewContainer').style.display = 'none';
+                document.getElementById('btnProcessImport').disabled = true;
+                this.importData = null;
+                
+                document.getElementById('importModal').classList.add('active');
+            },
+
+            async readExcelFile(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                            resolve(jsonData);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    
+                    reader.onerror = () => reject(new Error('Gagal membaca file'));
+                    reader.readAsArrayBuffer(file);
+                });
+            },
+
+            async previewImport() {
+                const fileInput = document.getElementById('excelFile');
+                const file = fileInput.files[0];
+                
+                if (!file) return;
+                
+                try {
+                    const rawData = await this.readExcelFile(file);
+                    
+                    if (rawData.length < 2) {
+                        alert('File Excel harus memiliki minimal 2 baris (header + data)');
+                        return;
+                    }
+                    
+                    // Ambil header dan data
+                    const headers = rawData[0];
+                    const dataRows = rawData.slice(1);
+                    
+                    // MAPPING KOLOM - Normalisasi nama kolom
+                    const normalizeHeader = (header) => {
+                        if (!header) return '';
+                        return String(header).toLowerCase().trim().replace(/\s+/g, '_');
+                    };
+                    
+                    // Buat mapping
+                    const headerMap = {};
+                    headers.forEach((header, index) => {
+                        headerMap[normalizeHeader(header)] = index;
+                    });
+                    
+                    console.log('Header mapping:', headerMap);
+                    
+                    // Konversi ke format object dengan key yang benar
+                    this.importData = dataRows
+                        .filter(row => row.some(cell => cell !== null && cell !== undefined && cell !== ''))
+                        .map(row => {
+                            const obj = {};
+                            
+                            // Untuk setiap kolom yang kita butuhkan, cari di header
+                            const columnMappings = this.importType === 'satker' 
+                                ? {
+                                    'kode_satker': ['kode_satker', 'kode', 'kodesatker'],
+                                    'nama_satker': ['nama_satker', 'satker', 'nama', 'namasatker', 'satuan_kerja'],
+                                    'nominal': ['nominal', 'up_rm', 'uprm', 'uang'],
+                                    'nomor_wa': ['nomor_wa', 'wa', 'whatsapp', 'no_wa', 'nowa']
+                                }
+                                : {
+                                    'tanggal_pembelian': ['tanggal_pembelian', 'tgl_pembelian', 'tanggal', 'tglpembelian'],
+                                    'kppn': ['kppn'],
+                                    'kode_satker': ['kode_satker', 'kode', 'kodesatker'],
+                                    'satuan_kerja': ['satuan_kerja', 'satker', 'nama_satker', 'namasatker'],
+                                    'pejabat_pengadaan': ['pejabat_pengadaan', 'pejabat', 'pp', 'pejabatpengadaan'],
+                                    'produk': ['produk', 'barang'],
+                                    'total_nominal': ['total_nominal', 'nominal', 'total', 'totalnominal'],
+                                    'nomor_rekening': ['nomor_rekening', 'no_rekening', 'rekening', 'norek', 'no_rek'],
+                                    'nomor_invoice': ['nomor_invoice', 'no_invoice', 'invoice', 'noinvoice'],
+                                    'metode_bayar': ['metode_bayar', 'metode', 'metodebayar', 'cara_bayar'],
+                                    'status_transaksi': ['status_transaksi', 'status', 'statustransaksi'],
+                                    'tanggal_deadline': ['tanggal_deadline', 'tgl_deadline', 'deadline'],
+                                    'tanggal_jatuh_tempo': ['tanggal_jatuh_tempo', 'tgl_jatuh_tempo', 'jatuh_tempo', 'jatuhtempo'],
+                                    'tanggal_checkout': ['tanggal_checkout', 'tgl_checkout', 'checkout'],
+                                    'tanggal_kirim': ['tanggal_kirim', 'tgl_kirim', 'tglkirim'],
+                                    'tanggal_terima': ['tanggal_terima', 'tgl_terima', 'tglterima'],
+                                    'tanggal_bayar': ['tanggal_bayar', 'tgl_bayar', 'tglbayar']
+                                };
+                            
+                            // Cari nilai untuk setiap kolom
+                            Object.keys(columnMappings).forEach(targetKey => {
+                                const possibleHeaders = columnMappings[targetKey];
+                                
+                                for (let possibleHeader of possibleHeaders) {
+                                    const normalizedPossible = normalizeHeader(possibleHeader);
+                                    if (headerMap[normalizedPossible] !== undefined) {
+                                        obj[targetKey] = row[headerMap[normalizedPossible]];
+                                        break;
+                                    }
+                                }
+                            });
+                            
+                            return obj;
+                        });
+                    
+                    console.log('Mapped data sample:', this.importData[0]);
+                    
+                    // Validasi: cek apakah kolom wajib ada
+                    if (this.importType === 'satker') {
+                        const hasRequired = this.importData[0].kode_satker && this.importData[0].nama_satker;
+                        if (!hasRequired) {
+                            alert('Kolom wajib tidak ditemukan!\n\nPastikan file Excel memiliki kolom:\n- kode_satker (atau "kode")\n- nama_satker (atau "satker" / "nama")');
+                            return;
+                        }
+                    } else {
+                        const hasRequired = this.importData[0].tanggal_pembelian && 
+                                          this.importData[0].kode_satker && 
+                                          this.importData[0].satuan_kerja;
+                        if (!hasRequired) {
+                            alert('Kolom wajib tidak ditemukan!\n\nPastikan file Excel memiliki kolom:\n- tanggal_pembelian\n- kode_satker\n- satuan_kerja (atau "satker")');
+                            return;
+                        }
+                    }
+                    
+                    // Tampilkan preview 5 baris pertama
+                    const preview = this.importData.slice(0, 5);
+                    const previewTable = document.getElementById('previewTable');
+                    
+                    // Gunakan key dari object pertama sebagai header
+                    const displayHeaders = Object.keys(this.importData[0]);
+                    
+                    let tableHTML = '<thead><tr>';
+                    displayHeaders.forEach(h => {
+                        tableHTML += `<th style="background: #2563eb; color: white; padding: 8px; font-size: 11px;">${h}</th>`;
+                    });
+                    tableHTML += '</tr></thead><tbody>';
+                    
+                    preview.forEach(row => {
+                        tableHTML += '<tr>';
+                        displayHeaders.forEach(h => {
+                            let value = row[h] || '-';
+                            if (typeof value === 'number' && value > 40000 && value < 50000) {
+                                // Kemungkinan Excel date serial
+                                const date = new Date((value - 25569) * 86400 * 1000);
+                                value = date.toISOString().split('T')[0];
+                            }
+                            tableHTML += `<td style="border: 1px solid #e2e8f0; padding: 8px; font-size: 11px;">${value}</td>`;
+                        });
+                        tableHTML += '</tr>';
+                    });
+                    tableHTML += '</tbody>';
+                    
+                    previewTable.innerHTML = tableHTML;
+                    document.getElementById('previewContainer').style.display = 'block';
+                    
+                    // Tampilkan info lebih detail
+                    const infoHTML = `
+                        <strong style="color: #10b981;">✓ ${this.importData.length} baris data siap diimport.</strong><br>
+                        Menampilkan ${preview.length} baris pertama sebagai preview.<br>
+                        <span style="color: #f59e0b;">⚠️ Periksa data sebelum import!</span>
+                    `;
+                    document.getElementById('previewInfo').innerHTML = infoHTML;
+                    document.getElementById('btnProcessImport').disabled = false;
+                    
+                } catch (error) {
+                    console.error('Error reading Excel:', error);
+                    alert('Gagal membaca file Excel: ' + error.message + '\n\nPastikan file adalah format Excel yang valid (.xlsx atau .xls)');
+                }
+            },
+
+            async processImport() {
+                if (!this.importData || this.importData.length === 0) {
+                    alert('Tidak ada data untuk diimport');
+                    return;
+                }
+                
+                const confirmed = confirm(`Import ${this.importData.length} data ${this.importType}?`);
+                if (!confirmed) return;
+                
+                document.getElementById('btnProcessImport').disabled = true;
+                document.getElementById('btnProcessImport').innerHTML = '<span>⏳</span> Memproses...';
+                
+                try {
+                    let successCount = 0;
+                    let errorCount = 0;
+                    const errors = [];
+                    
+                    if (this.importType === 'satker') {
+                        // Import Satker
+                        for (let i = 0; i < this.importData.length; i++) {
+                            const row = this.importData[i];
+                            
+                            try {
+                                // Validasi data wajib
+                                if (!row.kode_satker || !row.nama_satker) {
+                                    throw new Error('Kode satker dan nama satker harus diisi');
+                                }
+                                
+                                const data = {
+                                    kode_satker: String(row.kode_satker).trim(),
+                                    nama_satker: String(row.nama_satker).trim(),
+                                    nominal: parseFloat(row.nominal) || 0,
+                                    nomor_wa: row.nomor_wa ? String(row.nomor_wa).trim() : null
+                                };
+                                
+                                // Cek duplikat
+                                const { data: existing } = await supabaseClient
+                                    .from('tbl_satker')
+                                    .select('kode_satker')
+                                    .eq('kode_satker', data.kode_satker)
+                                    .maybeSingle();
+                                
+                                if (existing) {
+                                    // Update jika sudah ada
+                                    await supabaseClient
+                                        .from('tbl_satker')
+                                        .update(data)
+                                        .eq('kode_satker', data.kode_satker);
+                                } else {
+                                    // Insert jika baru
+                                    await supabaseClient
+                                        .from('tbl_satker')
+                                        .insert([data]);
+                                }
+                                
+                                successCount++;
+                            } catch (err) {
+                                errorCount++;
+                                errors.push(`Baris ${i + 2}: ${err.message}`);
+                            }
+                        }
+                    } else {
+                        // Import Transaksi
+                        for (let i = 0; i < this.importData.length; i++) {
+                            const row = this.importData[i];
+                            
+                            try {
+                                // Helper function untuk konversi tanggal Excel
+                                const parseExcelDate = (value) => {
+                                    if (!value) return null;
+                                    
+                                    // Jika sudah format string tanggal
+                                    if (typeof value === 'string') {
+                                        // Coba parse berbagai format
+                                        const formats = [
+                                            /^\d{4}-\d{2}-\d{2}$/,  // 2025-01-15
+                                            /^\d{2}\/\d{2}\/\d{4}$/, // 15/01/2025
+                                            /^\d{1,2}-\w{3}-\d{2}$/  // 15-Jan-25
+                                        ];
+                                        
+                                        // Jika format YYYY-MM-DD, langsung return
+                                        if (formats[0].test(value)) return value;
+                                        
+                                        // Coba parse tanggal lain
+                                        const date = new Date(value);
+                                        if (!isNaN(date.getTime())) {
+                                            return date.toISOString().split('T')[0];
+                                        }
+                                    }
+                                    
+                                    // Jika angka Excel serial date (ex: 45678)
+                                    if (typeof value === 'number') {
+                                        const date = new Date((value - 25569) * 86400 * 1000);
+                                        return date.toISOString().split('T')[0];
+                                    }
+                                    
+                                    return null;
+                                };
+                                
+                                // Validasi data wajib
+                                if (!row.tanggal_pembelian || !row.kode_satker || !row.satuan_kerja) {
+                                    throw new Error('Tanggal pembelian, kode satker, dan satuan kerja harus diisi');
+                                }
+                                
+                                const data = {
+                                    tanggal_pembelian: parseExcelDate(row.tanggal_pembelian),
+                                    kppn: row.kppn ? String(row.kppn).trim() : 'KPPN PEKALONGAN',
+                                    kode_satker: String(row.kode_satker).trim(),
+                                    satuan_kerja: String(row.satuan_kerja).trim(),
+                                    pejabat_pengadaan: row.pejabat_pengadaan ? String(row.pejabat_pengadaan).trim() : null,
+                                    produk: row.produk ? String(row.produk).trim() : null,
+                                    total_nominal: parseFloat(String(row.total_nominal).replace(/[^\d.-]/g, '')) || 0,
+                                    nomor_rekening: row.nomor_rekening ? String(row.nomor_rekening).trim() : null,
+                                    nomor_invoice: row.nomor_invoice ? String(row.nomor_invoice).trim() : null,
+                                    metode_bayar: row.metode_bayar ? String(row.metode_bayar).trim() : 'VA',
+                                    status_transaksi: row.status_transaksi ? String(row.status_transaksi).trim() : 'Pending',
+                                    tanggal_deadline: parseExcelDate(row.tanggal_deadline),
+                                    tanggal_jatuh_tempo: parseExcelDate(row.tanggal_jatuh_tempo),
+                                    tanggal_checkout: parseExcelDate(row.tanggal_checkout),
+                                    tanggal_kirim: parseExcelDate(row.tanggal_kirim),
+                                    tanggal_terima: parseExcelDate(row.tanggal_terima),
+                                    tanggal_bayar: parseExcelDate(row.tanggal_bayar)
+                                };
+                                
+                                // Log untuk debugging
+                                console.log(`Processing row ${i + 2}:`, data);
+                                
+                                await supabaseClient
+                                    .from('tbl_transaksi')
+                                    .insert([data]);
+                                
+                                successCount++;
+                            } catch (err) {
+                                errorCount++;
+                                console.error(`Error on row ${i + 2}:`, err, row);
+                                errors.push(`Baris ${i + 2}: ${err.message}`);
+                            }
+                        }
+                    }
+                    
+                    // Refresh data
+                    await this.loadDashboardData();
+                    await this.loadTransaksiData();
+                    this.calculateSheetProses();
+                    this.calculateRekapDigipay();
+                    this.renderAll();
+                    this.updateStats();
+                    
+                    // Tampilkan hasil
+                    let message = `Import selesai!\n\nBerhasil: ${successCount}\nGagal: ${errorCount}`;
+                    if (errors.length > 0 && errors.length <= 5) {
+                        message += '\n\nError:\n' + errors.join('\n');
+                    } else if (errors.length > 5) {
+                        message += '\n\nError (5 pertama):\n' + errors.slice(0, 5).join('\n');
+                    }
+                    
+                    alert(message);
+                    this.closeModal('import');
+                    
+                } catch (error) {
+                    console.error('Error processing import:', error);
+                    alert('Gagal memproses import: ' + error.message);
+                } finally {
+                    document.getElementById('btnProcessImport').disabled = false;
+                    document.getElementById('btnProcessImport').innerHTML = '<span>⬆️</span> Proses Import';
+                }
             },
             printProses() {
                 const { jsPDF } = window.jspdf;
@@ -1889,6 +2335,135 @@ prepareWhatsApp(kodeSatker) {
                 
                 doc.save(`Laporan-Rekap-Digipay-${new Date().toISOString().split('T')[0]}.pdf`);
             }
+
+            ,
+
+exportProsesExcel() {
+    // Filter data yang akan diexport
+    const data = this.getFilteredData();
+    
+    // Siapkan data untuk Excel
+    const excelData = data.map((item, index) => ({
+        'No': index + 1,
+        'Kode Satker': item.kodeSatker,
+        'Nama Satker': item.namaSatker,
+        'Status': item.status,
+        'Proses Transaksi': item.prosesTransaksi,
+        'Transaksi': item.transaksi,
+        'VA Terbayar': item.vaTerbayar
+    }));
+    
+    // Buat worksheet
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    
+    // Set lebar kolom
+    ws['!cols'] = [
+        { wch: 5 },   // No
+        { wch: 15 },  // Kode Satker
+        { wch: 40 },  // Nama Satker
+        { wch: 12 },  // Status
+        { wch: 18 },  // Proses Transaksi
+        { wch: 12 },  // Transaksi
+        { wch: 15 }   // VA Terbayar
+    ];
+    
+    // Buat workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Proses Transaksi');
+    
+    // Tambahkan sheet summary
+    const summary = [
+        ['LAPORAN PROSES TRANSAKSI DIGIPAY'],
+        ['KPPN Pekalongan'],
+        ['Tanggal: ' + new Date().toLocaleDateString('id-ID')],
+        [''],
+        ['Total Satker', data.length],
+        ['Sudah Implementasi', data.filter(d => d.status === 'SUDAH').length],
+        ['Belum Implementasi', data.filter(d => d.status === 'BELUM').length],
+        ['Total Proses Transaksi', data.reduce((sum, d) => sum + d.prosesTransaksi, 0)],
+        ['Total Transaksi', data.reduce((sum, d) => sum + d.transaksi, 0)],
+        ['Total VA Terbayar', data.reduce((sum, d) => sum + d.vaTerbayar, 0)]
+    ];
+    
+    const wsSummary = XLSX.utils.aoa_to_sheet(summary);
+    wsSummary['!cols'] = [{ wch: 25 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+    
+    // Download file
+    const fileName = `Laporan-Proses-${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+},
+
+exportRekapExcel() {
+    // Filter data yang akan diexport
+    const data = this.getFilteredData();
+    
+    // Siapkan data untuk Excel
+    const excelData = data.map(item => ({
+        'No': item.no,
+        'Kode Satker': item.kodeSatker,
+        'Nama Satker': item.namaSatker,
+        'Nominal': item.upRM || 0,
+        'Proses Transaksi': item.prosesTransaksi,
+        'VA Terbayar': item.vaTerbayar,
+        'Transaksi VA': item.transaksiKuitansi,
+        'Status': item.status,
+        'Keterangan': item.keterangan || '-'
+    }));
+    
+    // Buat worksheet
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    
+    // Set lebar kolom
+    ws['!cols'] = [
+        { wch: 5 },   // No
+        { wch: 15 },  // Kode Satker
+        { wch: 40 },  // Nama Satker
+        { wch: 15 },  // Nominal
+        { wch: 18 },  // Proses Transaksi
+        { wch: 15 },  // VA Terbayar
+        { wch: 15 },  // Transaksi VA
+        { wch: 12 },  // Status
+        { wch: 35 }   // Keterangan
+    ];
+    
+    // Format kolom nominal sebagai currency
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let row = 1; row <= range.e.r; row++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: row, c: 3 }); // Kolom D (Nominal)
+        if (ws[cellAddress] && typeof ws[cellAddress].v === 'number') {
+            ws[cellAddress].z = '#,##0';
+        }
+    }
+    
+    // Buat workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Rekap Digipay');
+    
+    // Tambahkan sheet summary
+    const totalNominal = data.reduce((sum, d) => sum + (d.upRM || 0), 0);
+    const summary = [
+        ['LAPORAN REKAP DIGIPAY'],
+        ['KPPN Pekalongan'],
+        ['Tanggal: ' + new Date().toLocaleDateString('id-ID')],
+        [''],
+        ['Total Satker', data.length],
+        ['Sudah Implementasi', data.filter(d => d.status === 'SUDAH').length],
+        ['Belum Implementasi', data.filter(d => d.status === 'BELUM').length],
+        ['Total Nominal', totalNominal],
+        ['Total Proses Transaksi', data.reduce((sum, d) => sum + d.prosesTransaksi, 0)],
+        ['Total VA Terbayar', data.reduce((sum, d) => sum + d.vaTerbayar, 0)],
+        ['Total Transaksi VA', data.reduce((sum, d) => sum + d.transaksiKuitansi, 0)]
+    ];
+    
+    const wsSummary = XLSX.utils.aoa_to_sheet(summary);
+    wsSummary['!cols'] = [{ wch: 25 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+    
+    // Download file
+    const fileName = `Laporan-Rekap-Digipay-${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+}
         
             
         };
