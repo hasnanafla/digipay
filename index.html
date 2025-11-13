@@ -6,7 +6,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KPPN Digipay Monitoring Sistem</title>hy62y
+    <title>KPPN Digipay Monitoring Sistem</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1013,25 +1013,33 @@ xx
                 }
             },
 
-            async loadTransaksiData() {
-                try {
-                    console.log('Memuat data transaksi...');
-                    const { data, error } = await supabaseClient
-                        .from('tbl_transaksi')
-                        .select('*')
-                        .order('no');
-                    
-                    if (error) throw error;
-                    
-                    this.transaksiData = data || [];
-                    console.log(`✓ Berhasil memuat ${this.transaksiData.length} data transaksi`);
-                } catch (err) {
-                    console.error('Error loading transaksi:', err);
-                    document.getElementById('transaksiTableBody').innerHTML = 
-                        '<tr><td colspan="18" class="error">Gagal memuat data: ' + err.message + '</td></tr>';
-                }
-            },
-
+           async loadTransaksiData() {
+    try {
+        console.log('Memuat data transaksi...');
+        let allData = [];
+        let page = 0;
+        const pageSize = 1000;
+        
+        while (true) {
+            const { data, error } = await supabaseClient
+                .from('tbl_transaksi')
+                .select('*')
+                .order('no')
+                .range(page * pageSize, (page + 1) * pageSize - 1);
+            
+            if (error) throw error;
+            if (!data || data.length === 0) break;
+            
+            allData = allData.concat(data);
+            page++;
+        }
+        
+        this.transaksiData = allData;
+        console.log(`✓ Berhasil memuat ${this.transaksiData.length} data transaksi`);
+    } catch (err) {
+        console.error('Error loading transaksi:', err);
+    }
+},
             setupEventListeners() {
                 document.querySelectorAll('.menu-item').forEach(item => {
                     item.addEventListener('click', (e) => {
