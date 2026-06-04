@@ -4,6 +4,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KPPN Digipay Monitoring Sistem</title>
@@ -31,14 +32,35 @@
       .page-header { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 24px; }
       .page-header h1 { color: #2563eb; font-size: 32px; margin-bottom: 8px; }
       .page-header p { color: #64748b; font-size: 15px; }
-      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 20px; margin-bottom: 24px; }
-      .stat-card { background: white; padding: 28px; border-radius: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 20px; margin-bottom: 24px; }
+      .stat-card { background: white; padding: 24px 28px; border-radius: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: transform 0.3s ease, box-shadow 0.3s ease; border-left: 5px solid #2563eb; }
       .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
-      .stat-card h3 { color: #64748b; font-size: 14px; font-weight: 500; margin-bottom: 12px; }
-      .stat-card .value { font-size: 36px; font-weight: bold; color: #2563eb; }
+      .stat-card h3 { color: #64748b; font-size: 13px; font-weight: 500; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+      .stat-card .value { font-size: 34px; font-weight: bold; color: #2563eb; }
+      .stat-card .sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+      .stat-card.green { border-left-color: #10b981; }
       .stat-card.green .value { color: #10b981; }
+      .stat-card.amber { border-left-color: #f59e0b; }
       .stat-card.amber .value { color: #f59e0b; }
+      .stat-card.purple { border-left-color: #8b5cf6; }
+      .stat-card.purple .value { color: #8b5cf6; }
+      .stat-card.red { border-left-color: #ef4444; }
+      .stat-card.red .value { color: #ef4444; }
       .content-card { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; }
+      .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+      .chart-card { background: white; border-radius: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 24px; }
+      .chart-card.full-width { grid-column: 1 / -1; }
+      .chart-card h3 { color: #1e40af; font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+      .chart-card p { color: #94a3b8; font-size: 12px; margin-bottom: 16px; }
+      .chart-wrapper { position: relative; }
+      .alert-card { background: white; border-radius: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 20px; border-left: 5px solid #ef4444; margin-bottom: 20px; }
+      .alert-card h3 { color: #ef4444; font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+      .alert-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+      .alert-item:last-child { border-bottom: none; }
+      .alert-item .satker-name { color: #334155; font-weight: 500; }
+      .alert-item .deadline { color: #ef4444; font-weight: 600; }
+      .progress-bar-wrap { background: #e2e8f0; border-radius: 99px; height: 8px; margin-top: 6px; overflow: hidden; }
+      .progress-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #2563eb, #10b981); transition: width 0.6s ease; }
       .toolbar { display: flex; gap: 15px; margin-bottom: 24px; flex-wrap: wrap; }
       .search-box { flex: 1; min-width: 250px; position: relative; }
       .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 18px; }
@@ -99,6 +121,11 @@
       .page-content.active { display: block; }
       select { padding: 14px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; background: white; cursor: pointer; }
       select:focus { outline: none; border-color: #2563eb; }
+      .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-size: 13px; font-weight: 700; }
+      .rank-1 { background: #fef3c7; color: #92400e; }
+      .rank-2 { background: #f1f5f9; color: #475569; }
+      .rank-3 { background: #fdf2e9; color: #7c4700; }
+      @media (max-width: 1100px) { .charts-grid { grid-template-columns: 1fr; } }
       @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-wrapper { margin-left: 0; } .form-row { grid-template-columns: 1fr; } }
       @media print { .toolbar, .btn { display: none; } }
     </style>
@@ -112,6 +139,7 @@
       </div>
       <div class="sidebar-menu">
         <div class="menu-item active" data-page="dashboard"><span class="menu-icon">📊</span><span>Dashboard</span></div>
+        <div class="menu-item" data-page="data-satker"><span class="menu-icon">🏢</span><span>Data Satker</span></div>
         <div class="menu-item" data-page="data-transaksi"><span class="menu-icon">💳</span><span>Data Transaksi</span></div>
         <div class="menu-item" data-page="sheet-proses"><span class="menu-icon">⚙️</span><span>Proses</span></div>
         <div class="menu-item" data-page="rekap-digipay"><span class="menu-icon">📈</span><span>Rekap Digipay</span></div>
@@ -129,31 +157,176 @@
     <div class="main-wrapper">
       <div class="container">
 
+        <!-- ===== DASHBOARD ===== -->
         <div id="dashboard" class="page-content active">
-          <div class="page-header"><h1>Dashboard Satker</h1><p>Data Satker KPPN Pekalongan</p></div>
-          <div class="stats-grid">
-            <div class="stat-card"><h3>Total Satker</h3><div class="value" id="totalSatker">0</div></div>
-            <div class="stat-card green"><h3>Sudah Implementasi</h3><div class="value" id="sudahImplement">0</div></div>
-            <div class="stat-card amber"><h3>Belum Implementasi</h3><div class="value" id="belumImplement">0</div></div>
-            <div class="stat-card"><h3>Total Transaksi</h3><div class="value" id="totalTransaksi">0</div></div>
+          <div class="page-header">
+            <h1>📊 Dashboard</h1>
+            <p>Monitoring Digipay Satuan Kerja KPPN Pekalongan</p>
           </div>
-          <div class="content-card">
-            <div class="toolbar">
-              <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="searchDashboard" placeholder="Cari satker..." /></div>
-              <button class="btn btn-primary" id="btnAddDashboard"><span>+</span> Tambah Satker</button>
-              <button class="btn btn-success" onclick="app.showImportModal('satker')"><span>📥</span> Import Excel</button>
+
+          <!-- Stats Row 1 -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>Total Satker</h3>
+              <div class="value" id="totalSatker">0</div>
+              <div class="sub">Terdaftar di sistem</div>
             </div>
+            <div class="stat-card green">
+              <h3>Sudah Implementasi</h3>
+              <div class="value" id="sudahImplement">0</div>
+              <div class="sub" id="pctSudah">0% dari total satker</div>
+            </div>
+            <div class="stat-card amber">
+              <h3>Belum Implementasi</h3>
+              <div class="value" id="belumImplement">0</div>
+              <div class="sub" id="pctBelum">0% dari total satker</div>
+            </div>
+            <div class="stat-card">
+              <h3>Total Transaksi</h3>
+              <div class="value" id="totalTransaksi">0</div>
+              <div class="sub">Semua transaksi</div>
+            </div>
+          </div>
+
+          <!-- Stats Row 2 -->
+          <div class="stats-grid" style="margin-bottom:24px">
+            <div class="stat-card purple">
+              <h3>VA Terbayar</h3>
+              <div class="value" id="totalVA">0</div>
+              <div class="sub">Transaksi via VA</div>
+            </div>
+            <div class="stat-card green">
+              <h3>Transaksi Berhasil</h3>
+              <div class="value" id="trxBerhasil">0</div>
+              <div class="sub">Status Berhasil</div>
+            </div>
+            <div class="stat-card amber">
+              <h3>Transaksi Dikembalikan</h3>
+              <div class="value" id="trxPending">0</div>
+              <div class="sub">Dikembalikan</div>
+            </div>
+            <div class="stat-card red">
+              <h3>Transaksi Dibatalkan</h3>
+              <div class="value" id="deadlineCount">0</div>
+              <div class="sub">Status Batal</div>
+            </div>
+          </div>
+
+          <!-- Progress Implementasi -->
+          <div class="chart-card" style="margin-bottom:24px">
+            <h3>Progress Implementasi Digipay</h3>
+            <p>Persentase satker yang telah menggunakan Digipay</p>
+            <div style="display:flex;align-items:center;gap:16px;margin-top:4px">
+              <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;font-size:13px;color:#64748b;margin-bottom:6px">
+                  <span>Sudah Implementasi</span>
+                  <span id="progressLabel" style="font-weight:600;color:#2563eb">0 / 0</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+                </div>
+              </div>
+              <div style="font-size:28px;font-weight:700;color:#2563eb;min-width:60px;text-align:right" id="progressPct">0%</div>
+            </div>
+          </div>
+
+          <!-- Alert Deadline -->
+          <div id="alertSection" class="alert-card" style="display:none">
+            <h3>⚠️ Perhatian — Deadline Mendekat (7 Hari)</h3>
+            <div id="alertList"></div>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <!-- Top Satker by Transaksi -->
+            <div class="chart-card full-width">
+              <h3>🏆 Top 10 Satker Terbaik</h3>
+              <p>Berdasarkan jumlah transaksi VA terbayar</p>
+              <div class="chart-wrapper" style="height:360px">
+                <canvas id="chartTopSatker" role="img" aria-label="Bar chart top 10 satker berdasarkan transaksi">Memuat chart...</canvas>
+              </div>
+            </div>
+
+            <!-- Donut Status -->
+            <div class="chart-card">
+              <h3>🔵 Status Implementasi</h3>
+              <p>Distribusi sudah vs belum Digipay</p>
+              <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:8px;font-size:12px;color:#64748b">
+                <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#10b981;display:inline-block"></span>Sudah</span>
+                <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#ef4444;display:inline-block"></span>Belum</span>
+              </div>
+              <div class="chart-wrapper" style="height:260px">
+                <canvas id="chartStatus" role="img" aria-label="Donut chart status implementasi digipay">Memuat chart...</canvas>
+              </div>
+            </div>
+
+            <!-- Metode Bayar -->
+            <div class="chart-card">
+              <h3>💳 Distribusi Metode Bayar</h3>
+              <p>Komposisi VA, Transfer, dan Tunai</p>
+              <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:8px;font-size:12px;color:#64748b">
+                <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#2563eb;display:inline-block"></span>VA</span>
+                <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#8b5cf6;display:inline-block"></span>Transfer</span>
+                <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#f59e0b;display:inline-block"></span>Tunai</span>
+              </div>
+              <div class="chart-wrapper" style="height:260px">
+                <canvas id="chartMetode" role="img" aria-label="Pie chart distribusi metode pembayaran">Memuat chart...</canvas>
+              </div>
+            </div>
+
+            <!-- Tren Transaksi per Bulan -->
+            <div class="chart-card full-width">
+              <h3>📅 Tren Transaksi per Bulan</h3>
+              <p>Jumlah transaksi masuk setiap bulan</p>
+              <div class="chart-wrapper" style="height:260px">
+                <canvas id="chartTren" role="img" aria-label="Line chart tren transaksi per bulan">Memuat chart...</canvas>
+              </div>
+            </div>
+
+            <!-- Realisasi Nominal -->
+            <div class="chart-card full-width">
+              <h3>💰 Realisasi Nominal UP/RM per Satker (Top 10)</h3>
+              <p>Total nominal transaksi yang sudah diproses dibanding UP/RM yang ditetapkan</p>
+              <div class="chart-wrapper" style="height:320px">
+                <canvas id="chartRealisasi" role="img" aria-label="Grouped bar chart realisasi nominal per satker">Memuat chart...</canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Satker Table -->
+          <div class="content-card">
+            <h3 style="color:#1e40af;font-size:18px;margin-bottom:6px">🏅 Ranking Satker Terbaik</h3>
+            <p style="color:#94a3b8;font-size:13px;margin-bottom:20px">Urutan satker berdasarkan jumlah VA terbayar</p>
             <div class="table-container">
               <table>
-                <thead><tr><th>No</th><th>Kode Satker</th><th>Satker</th><th>Nominal</th><th>Nomor WA</th><th>Aksi</th></tr></thead>
-                <tbody id="dashboardTableBody"><tr><td colspan="6" class="loading">Memuat data...</td></tr></tbody>
+                <thead><tr><th>Rank</th><th>Kode Satker</th><th>Nama Satker</th><th>Proses Transaksi</th><th>VA Terbayar</th><th>Transaksi Berhasil</th><th>Status</th></tr></thead>
+                <tbody id="rankingTableBody"><tr><td colspan="7" class="loading">Memuat data...</td></tr></tbody>
               </table>
             </div>
           </div>
         </div>
 
+        <!-- ===== DATA SATKER ===== -->
+        <div id="data-satker" class="page-content">
+          <div class="page-header"><h1>🏢 Data Satker</h1><p>Kelola Data Satuan Kerja KPPN Pekalongan</p></div>
+          <div class="content-card">
+            <div class="toolbar">
+              <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="searchSatker" placeholder="Cari satker..." /></div>
+              <button class="btn btn-primary" id="btnAddSatker"><span>+</span> Tambah Satker</button>
+              <button class="btn btn-success" onclick="app.showImportModal('satker')"><span>📥</span> Import Excel</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead><tr><th>No</th><th>Kode Satker</th><th>Satker</th><th>Nominal (UP/RM)</th><th>Nomor WA</th><th>Aksi</th></tr></thead>
+                <tbody id="satkerTableBody"><tr><td colspan="6" class="loading">Memuat data...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== DATA TRANSAKSI ===== -->
         <div id="data-transaksi" class="page-content">
-          <div class="page-header"><h1>Data Transaksi</h1><p>Kelola Data Transaksi Digipay Lengkap</p></div>
+          <div class="page-header"><h1>💳 Data Transaksi</h1><p>Kelola Data Transaksi Digipay Lengkap</p></div>
           <div class="content-card">
             <div class="toolbar">
               <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="searchTransaksi" placeholder="Cari..." /></div>
@@ -169,8 +342,9 @@
           </div>
         </div>
 
+        <!-- ===== PROSES ===== -->
         <div id="sheet-proses" class="page-content">
-          <div class="page-header"><h1>Proses</h1></div>
+          <div class="page-header"><h1>⚙️ Proses</h1></div>
           <div class="content-card">
             <div class="toolbar">
               <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="searchProses" placeholder="Cari..." /></div>
@@ -187,8 +361,9 @@
           </div>
         </div>
 
+        <!-- ===== REKAP DIGIPAY ===== -->
         <div id="rekap-digipay" class="page-content">
-          <div class="page-header"><h1>Rekap Digipay</h1><p>Monitoring Digipay Satuan Kerja KPPN Pekalongan</p></div>
+          <div class="page-header"><h1>📈 Rekap Digipay</h1><p>Monitoring Digipay Satuan Kerja KPPN Pekalongan</p></div>
           <div class="content-card">
             <div class="toolbar">
               <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="searchRekap" placeholder="Cari..." /></div>
@@ -205,6 +380,7 @@
           </div>
         </div>
 
+        <!-- ===== MANAJEMEN ADMIN ===== -->
         <div id="manajemen-admin" class="page-content">
           <div class="page-header"><h1>👤 Manajemen Admin</h1><p>Kelola akun admin yang dapat mengakses sistem</p></div>
           <div class="content-card">
@@ -225,16 +401,16 @@
     </div>
 
     <!-- MODAL SATKER -->
-    <div id="dashboardModal" class="modal">
+    <div id="satkerModal" class="modal">
       <div class="modal-content">
-        <div class="modal-header"><h2 id="dashboardModalTitle">Tambah Data Satker</h2><button class="close-btn" id="closeDashboardModal">&#215;</button></div>
-        <form id="dashboardForm">
+        <div class="modal-header"><h2 id="satkerModalTitle">Tambah Data Satker</h2><button class="close-btn" id="closeSatkerModal">&#215;</button></div>
+        <form id="satkerForm">
           <div class="form-group"><label>Kode Satker</label><input type="text" id="kodeSatkerDash" required /></div>
           <div class="form-group"><label>Nama Satker</label><input type="text" id="namaSatkerDash" required /></div>
-          <div class="form-group"><label>Nominal</label><input type="number" id="upRM" value="0" /></div>
+          <div class="form-group"><label>Nominal (UP/RM)</label><input type="number" id="upRM" value="0" /></div>
           <div class="form-group"><label>Nomor WhatsApp</label><input type="tel" id="nomorWA" placeholder="628123456789" /></div>
           <div class="modal-actions">
-            <button type="button" class="btn btn-cancel" id="cancelDashboard">Batal</button>
+            <button type="button" class="btn btn-cancel" id="cancelSatker">Batal</button>
             <button type="submit" class="btn btn-primary">Simpan</button>
           </div>
         </form>
@@ -358,7 +534,7 @@
     <!-- MODAL HAPUS ADMIN -->
     <div id="deleteAdminModal" class="modal">
       <div class="modal-content" style="max-width:400px">
-        <div class="modal-header"><h2>&#128465;&#65039; Hapus Admin</h2><button class="close-btn" id="closeDeleteAdminModal">&#215;</button></div>
+        <div class="modal-header"><h2>🗑️ Hapus Admin</h2><button class="close-btn" id="closeDeleteAdminModal">&#215;</button></div>
         <p style="color:#475569;margin-bottom:12px">Yakin hapus admin:</p>
         <div style="background:#fee2e2;border-radius:8px;padding:12px;margin-bottom:16px">
           <strong style="color:#991b1b;font-size:16px" id="deleteAdminName">-</strong>
@@ -366,13 +542,12 @@
         <p style="color:#94a3b8;font-size:13px">Tindakan ini tidak dapat dibatalkan.</p>
         <div class="modal-actions" style="margin-top:20px">
           <button type="button" class="btn btn-cancel" id="cancelDeleteAdmin">Batal</button>
-          <button type="button" id="confirmDeleteAdmin" style="flex:1;padding:14px 24px;background:#ef4444;color:white;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">&#128465;&#65039; Hapus</button>
+          <button type="button" id="confirmDeleteAdmin" style="flex:1;padding:14px 24px;background:#ef4444;color:white;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">🗑️ Hapus</button>
         </div>
       </div>
     </div>
 
     <script>
-      // ===== CEK SESSION - redirect ke login.html jika belum login =====
       (function checkSession() {
         const raw = localStorage.getItem("kppn_session");
         if (!raw) { window.location.replace("login.html"); return; }
@@ -393,6 +568,12 @@
       const { createClient } = supabase;
       const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+      // Chart instances registry
+      const chartInstances = {};
+      function destroyChart(id) {
+        if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+      }
+
       const app = {
         activePage: "dashboard",
         currentEdit: null,
@@ -408,7 +589,6 @@
             const session = JSON.parse(localStorage.getItem("kppn_session"));
             document.getElementById("currentUsername").textContent = session.username || "-";
           } catch(e) {}
-
           try {
             await this.loadDashboardData();
             await this.loadTransaksiData();
@@ -417,6 +597,7 @@
             this.calculateRekapDigipay();
             this.renderAll();
             this.updateStats();
+            this.renderDashboardCharts();
             this.setupEventListeners();
           } catch (error) {
             console.error("Error inisialisasi:", error);
@@ -430,7 +611,6 @@
             this.dashboardData = data || [];
           } catch (err) {
             console.error("Error satker:", err);
-            document.getElementById("dashboardTableBody").innerHTML = '<tr><td colspan="6" class="error">Gagal memuat data: ' + err.message + "</td></tr>";
           }
         },
 
@@ -469,22 +649,22 @@
           });
 
           const on = (id, ev, fn) => document.getElementById(id)?.addEventListener(ev, fn);
-          on("btnAddDashboard", "click", () => this.openModal("dashboard"));
+          on("btnAddSatker", "click", () => this.openModal("satker"));
           on("btnAddTransaksi", "click", () => this.openModal("transaksi"));
-          on("closeDashboardModal", "click", () => this.closeModal("dashboard"));
+          on("closeSatkerModal", "click", () => this.closeModal("satker"));
           on("closeTransaksiModal", "click", () => this.closeModal("transaksi"));
           on("closeWhatsappModal", "click", () => this.closeModal("whatsapp"));
-          on("cancelDashboard", "click", () => this.closeModal("dashboard"));
+          on("cancelSatker", "click", () => this.closeModal("satker"));
           on("cancelTransaksi", "click", () => this.closeModal("transaksi"));
           on("cancelWhatsapp", "click", () => this.closeModal("whatsapp"));
           on("closeImportModal", "click", () => this.closeModal("import"));
           on("cancelImport", "click", () => this.closeModal("import"));
           on("excelFile", "change", () => this.previewImport());
           on("btnProcessImport", "click", () => this.processImport());
-          on("dashboardForm", "submit", e => this.saveDashboard(e));
+          on("satkerForm", "submit", e => this.saveSatker(e));
           on("transaksiForm", "submit", e => this.saveTransaksi(e));
           on("whatsappForm", "submit", e => this.sendWhatsApp(e));
-          on("searchDashboard", "input", () => this.searchData());
+          on("searchSatker", "input", () => this.searchData());
           on("searchTransaksi", "input", () => this.searchData());
           on("searchProses", "input", () => this.searchData());
           on("searchRekap", "input", () => this.searchData());
@@ -542,6 +722,7 @@
           document.getElementById(pageId).classList.add("active");
           this.clearSearch();
           this.renderCurrentPage();
+          if (pageId === "dashboard") this.renderDashboardCharts();
         },
 
         calculateSheetProses() {
@@ -559,43 +740,221 @@
 
         calculateRekapDigipay() {
           const g = {};
-          this.dashboardData.forEach(s => { g[s.kode_satker] = { kodeSatker: s.kode_satker, namaSatker: s.nama_satker, upRM: s.nominal || 0, prosesTransaksi: 0, vaTerbayar: 0, transaksiKuitansi: 0 }; });
+          this.dashboardData.forEach(s => { g[s.kode_satker] = { kodeSatker: s.kode_satker, namaSatker: s.nama_satker, upRM: s.nominal || 0, prosesTransaksi: 0, vaTerbayar: 0, transaksiKuitansi: 0, totalNominalTrx: 0 }; });
           this.transaksiData.forEach(t => {
             if (g[t.kode_satker]) {
               g[t.kode_satker].prosesTransaksi++;
+              g[t.kode_satker].totalNominalTrx += (t.total_nominal || 0);
               if (t.nomor_invoice && t.tanggal_bayar) g[t.kode_satker].transaksiKuitansi++;
               if (t.metode_bayar === "VA" && t.tanggal_bayar) g[t.kode_satker].vaTerbayar++;
             }
           });
-          this.rekapDigipayData = Object.values(g).map((x, i) => ({ no: i + 1, kodeSatker: x.kodeSatker, namaSatker: x.namaSatker, upRM: x.upRM, prosesTransaksi: x.prosesTransaksi, vaTerbayar: x.vaTerbayar, transaksiKuitansi: x.transaksiKuitansi, status: x.vaTerbayar > 0 ? "SUDAH" : "BELUM", keterangan: x.vaTerbayar > 0 ? "" : "Belum menggunakan Digipay" }));
+          this.rekapDigipayData = Object.values(g).map((x, i) => ({ no: i + 1, kodeSatker: x.kodeSatker, namaSatker: x.namaSatker, upRM: x.upRM, prosesTransaksi: x.prosesTransaksi, vaTerbayar: x.vaTerbayar, transaksiKuitansi: x.transaksiKuitansi, totalNominalTrx: x.totalNominalTrx, status: x.vaTerbayar > 0 ? "SUDAH" : "BELUM", keterangan: x.vaTerbayar > 0 ? "" : "Belum menggunakan Digipay" }));
         },
 
         updateStats() {
-          document.getElementById("totalSatker").textContent = this.dashboardData.length;
-          document.getElementById("sudahImplement").textContent = this.sheetProsesData.filter(s => s.status === "SUDAH").length;
-          document.getElementById("belumImplement").textContent = this.sheetProsesData.filter(s => s.status === "BELUM").length;
+          const total = this.dashboardData.length;
+          const sudah = this.sheetProsesData.filter(s => s.status === "SUDAH").length;
+          const belum = total - sudah;
+          const totalVA = this.transaksiData.filter(t => t.metode_bayar === "VA" && t.tanggal_bayar).length;
+          const trxBerhasil = this.transaksiData.filter(t => t.status_transaksi === "Diterima Satker (semuanya)").length;
+          const trxPending = this.transaksiData.filter(t => t.status_transaksi === "Dikembalikan PPK").length;
+          const deadlineCount= this.transaksiData.filter(t => t.status_transaksi === "Transaksi dibatalkan (expired)").length;
+
+          // Deadline dalam 7 hari
+          const today = new Date(); today.setHours(0,0,0,0);
+          const sevenDays = new Date(today); sevenDays.setDate(sevenDays.getDate() + 7);
+          const deadlineItems = this.transaksiData.filter(t => {
+            if (!t.tanggal_deadline || t.tanggal_bayar) return false;
+            const d = new Date(t.tanggal_deadline);
+            return d >= today && d <= sevenDays;
+          });
+
+          document.getElementById("totalSatker").textContent = total;
+          document.getElementById("sudahImplement").textContent = sudah;
+          document.getElementById("belumImplement").textContent = belum;
           document.getElementById("totalTransaksi").textContent = this.transaksiData.length;
+          document.getElementById("totalVA").textContent = totalVA;
+          document.getElementById("trxBerhasil").textContent = trxBerhasil;
+          document.getElementById("trxPending").textContent = trxPending;
+          document.getElementById("deadlineCount").textContent = deadlineCount;
+          document.getElementById("pctSudah").textContent = total ? Math.round(sudah/total*100) + "% dari total satker" : "0%";
+          document.getElementById("pctBelum").textContent = total ? Math.round(belum/total*100) + "% dari total satker" : "0%";
+
+          // Progress bar
+          const pct = total ? Math.round(sudah/total*100) : 0;
+          document.getElementById("progressBar").style.width = pct + "%";
+          document.getElementById("progressLabel").textContent = sudah + " / " + total;
+          document.getElementById("progressPct").textContent = pct + "%";
+
+          // Alert deadline
+          const alertSection = document.getElementById("alertSection");
+          if (deadlineItems.length > 0) {
+            alertSection.style.display = "block";
+            document.getElementById("alertList").innerHTML = deadlineItems.slice(0,5).map(t => {
+              const daysLeft = Math.ceil((new Date(t.tanggal_deadline) - today) / 86400000);
+              return `<div class="alert-item"><span class="satker-name">${t.satuan_kerja || t.kode_satker} — Invoice: ${t.nomor_invoice || "-"}</span><span class="deadline">⏰ ${daysLeft} hari lagi (${t.tanggal_deadline})</span></div>`;
+            }).join("");
+          } else {
+            alertSection.style.display = "none";
+          }
+
+          // Ranking table
+          const ranked = [...this.sheetProsesData].sort((a,b) => b.vaTerbayar - a.vaTerbayar).slice(0,10);
+          document.getElementById("rankingTableBody").innerHTML = ranked.length ? ranked.map((r, i) => {
+            const rankClass = i === 0 ? "rank-1" : i === 1 ? "rank-2" : i === 2 ? "rank-3" : "";
+            const rankIcon = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
+            return `<tr><td><span class="rank-badge ${rankClass}">${rankIcon || (i+1)}</span></td><td>${r.kodeSatker}</td><td>${r.namaSatker}</td><td>${r.prosesTransaksi}</td><td><strong style="color:#2563eb">${r.vaTerbayar}</strong></td><td>${r.transaksi}</td><td><span class="badge ${r.status==="SUDAH"?"badge-success":"badge-danger"}">${r.status}</span></td></tr>`;
+          }).join("") : '<tr><td colspan="7" class="loading">Tidak ada data</td></tr>';
         },
 
-        renderAll() { this.renderDashboardTable(); this.renderTransaksiTable(); this.renderProsesTable(); this.renderRekapTable(); this.renderAdminTable(); },
+        renderDashboardCharts() {
+          // Top Satker
+          const topData = [...this.sheetProsesData].sort((a,b) => b.vaTerbayar - a.vaTerbayar).slice(0,10);
+          destroyChart("chartTopSatker");
+          if (document.getElementById("chartTopSatker")) {
+            chartInstances["chartTopSatker"] = new Chart(document.getElementById("chartTopSatker"), {
+              type: "bar",
+              data: {
+                labels: topData.map(d => d.namaSatker.length > 28 ? d.namaSatker.slice(0,28)+"…" : d.namaSatker),
+                datasets: [
+                  { label: "VA Terbayar", data: topData.map(d => d.vaTerbayar), backgroundColor: topData.map((_, i) => i === 0 ? "#f59e0b" : i === 1 ? "#94a3b8" : i === 2 ? "#cd7f32" : "#3b82f6"), borderRadius: 6 },
+                  { label: "Proses Transaksi", data: topData.map(d => d.prosesTransaksi), backgroundColor: "#e0e7ff", borderRadius: 6 }
+                ]
+              },
+              options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: { ticks: { font: { size: 11 }, maxRotation: 30, autoSkip: false }, grid: { display: false } },
+                  y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: "#f1f5f9" } }
+                }
+              }
+            });
+          }
+
+          // Status Donut
+          const sudah = this.sheetProsesData.filter(s => s.status === "SUDAH").length;
+          const belum = this.sheetProsesData.filter(s => s.status === "BELUM").length;
+          destroyChart("chartStatus");
+          if (document.getElementById("chartStatus")) {
+            chartInstances["chartStatus"] = new Chart(document.getElementById("chartStatus"), {
+              type: "doughnut",
+              data: {
+                labels: ["Sudah (" + sudah + ")", "Belum (" + belum + ")"],
+                datasets: [{ data: [sudah, belum], backgroundColor: ["#10b981", "#ef4444"], borderWidth: 3, borderColor: "#fff", hoverBorderWidth: 4 }]
+              },
+              options: {
+                responsive: true, maintainAspectRatio: false, cutout: "65%",
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => " " + ctx.label + ": " + ctx.raw + " satker" } } }
+              }
+            });
+          }
+
+          // Metode Bayar Pie
+          const metodeCounts = {};
+          this.transaksiData.forEach(t => { const m = t.metode_bayar || "Lainnya"; metodeCounts[m] = (metodeCounts[m] || 0) + 1; });
+          destroyChart("chartMetode");
+          if (document.getElementById("chartMetode")) {
+            chartInstances["chartMetode"] = new Chart(document.getElementById("chartMetode"), {
+              type: "pie",
+              data: {
+                labels: Object.keys(metodeCounts),
+                datasets: [{ data: Object.values(metodeCounts), backgroundColor: ["#2563eb", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444"], borderWidth: 3, borderColor: "#fff" }]
+              },
+              options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => " " + ctx.label + ": " + ctx.raw + " transaksi" } } }
+              }
+            });
+          }
+
+          // Tren Transaksi per Bulan
+          const trendMap = {};
+          this.transaksiData.forEach(t => {
+            if (!t.tanggal_pembelian) return;
+            const key = t.tanggal_pembelian.slice(0, 7);
+            trendMap[key] = (trendMap[key] || 0) + 1;
+          });
+          const sortedKeys = Object.keys(trendMap).sort();
+          const labelBulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+          const trendLabels = sortedKeys.map(k => { const [y,m] = k.split("-"); return labelBulan[parseInt(m)-1] + " " + y.slice(2); });
+          destroyChart("chartTren");
+          if (document.getElementById("chartTren")) {
+            chartInstances["chartTren"] = new Chart(document.getElementById("chartTren"), {
+              type: "line",
+              data: {
+                labels: trendLabels,
+                datasets: [{ label: "Jumlah Transaksi", data: sortedKeys.map(k => trendMap[k]), borderColor: "#2563eb", backgroundColor: "rgba(37,99,235,0.08)", fill: true, tension: 0.4, pointBackgroundColor: "#2563eb", pointRadius: 5, pointHoverRadius: 7 }]
+              },
+              options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+                  y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: "#f1f5f9" } }
+                }
+              }
+            });
+          }
+
+          // Realisasi Nominal (Top 10)
+          const top10 = [...this.rekapDigipayData].sort((a,b) => b.totalNominalTrx - a.totalNominalTrx).slice(0,10);
+          destroyChart("chartRealisasi");
+          if (document.getElementById("chartRealisasi")) {
+            chartInstances["chartRealisasi"] = new Chart(document.getElementById("chartRealisasi"), {
+              type: "bar",
+              data: {
+                labels: top10.map(d => d.namaSatker.length > 22 ? d.namaSatker.slice(0,22)+"…" : d.namaSatker),
+                datasets: [
+                  { label: "UP/RM (Nominal)", data: top10.map(d => d.upRM), backgroundColor: "#e0e7ff", borderRadius: 4 },
+                  { label: "Realisasi Transaksi", data: top10.map(d => d.totalNominalTrx), backgroundColor: "#2563eb", borderRadius: 4 }
+                ]
+              },
+              options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: { ticks: { font: { size: 10 }, maxRotation: 30, autoSkip: false }, grid: { display: false } },
+                  y: { beginAtZero: true, grid: { color: "#f1f5f9" }, ticks: { callback: v => "Rp" + (v >= 1e6 ? (v/1e6).toFixed(0)+"jt" : v.toLocaleString("id-ID")) } }
+                }
+              }
+            });
+          }
+        },
+
+        renderAll() {
+          this.renderSatkerTable();
+          this.renderTransaksiTable();
+          this.renderProsesTable();
+          this.renderRekapTable();
+          this.renderAdminTable();
+        },
 
         renderCurrentPage() {
-          const map = { dashboard: () => this.renderDashboardTable(), "data-transaksi": () => this.renderTransaksiTable(), "sheet-proses": () => this.renderProsesTable(), "rekap-digipay": () => this.renderRekapTable(), "manajemen-admin": () => this.renderAdminTable() };
+          const map = {
+            dashboard: () => { this.updateStats(); },
+            "data-satker": () => this.renderSatkerTable(),
+            "data-transaksi": () => this.renderTransaksiTable(),
+            "sheet-proses": () => this.renderProsesTable(),
+            "rekap-digipay": () => this.renderRekapTable(),
+            "manajemen-admin": () => this.renderAdminTable()
+          };
           if (map[this.activePage]) map[this.activePage]();
         },
 
-        renderDashboardTable() {
-          const tbody = document.getElementById("dashboardTableBody");
+        renderSatkerTable() {
+          const tbody = document.getElementById("satkerTableBody");
           const data = this.getFilteredData();
           if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="loading">Tidak ada data</td></tr>'; return; }
-          tbody.innerHTML = data.map((d, i) => `<tr><td>${i+1}</td><td>${d.kode_satker||"-"}</td><td>${d.nama_satker||"-"}</td><td>Rp ${(d.nominal||0).toLocaleString("id-ID")}</td><td>${d.nomor_wa||"-"}</td><td><button class="btn-icon btn-edit" onclick="app.editDashboard('${d.kode_satker}')">&#9999;&#65039; Edit</button> <button class="btn-icon btn-whatsapp" onclick="app.prepareWhatsApp('${d.kode_satker}')">&#128241; WA</button></td></tr>`).join("");
+          tbody.innerHTML = data.map((d, i) => `<tr><td>${i+1}</td><td>${d.kode_satker||"-"}</td><td>${d.nama_satker||"-"}</td><td>Rp ${(d.nominal||0).toLocaleString("id-ID")}</td><td>${d.nomor_wa||"-"}</td><td><button class="btn-icon btn-edit" onclick="app.editSatker('${d.kode_satker}')">✏️ Edit</button> <button class="btn-icon btn-whatsapp" onclick="app.prepareWhatsApp('${d.kode_satker}')">📱 WA</button></td></tr>`).join("");
         },
 
         renderTransaksiTable() {
           const tbody = document.getElementById("transaksiTableBody");
           const data = this.getFilteredData();
           if (!data.length) { tbody.innerHTML = '<tr><td colspan="18" class="loading">Tidak ada data</td></tr>'; return; }
-          tbody.innerHTML = data.map((t, i) => `<tr><td>${i+1}</td><td>${t.tanggal_pembelian||"-"}</td><td>${t.kppn||"-"}</td><td>${t.satuan_kerja||"-"}</td><td>${t.pejabat_pengadaan||"-"}</td><td>${t.produk||"-"}</td><td>Rp ${(t.total_nominal||0).toLocaleString("id-ID")}</td><td>${t.nomor_rekening||"-"}</td><td>${t.nomor_invoice||"-"}</td><td>${t.metode_bayar||"-"}</td><td><span class="badge ${t.status_transaksi==="Berhasil"?"badge-success":t.status_transaksi==="Pending"?"badge-warning":"badge-danger"}">${t.status_transaksi||"Pending"}</span></td><td>${t.tanggal_deadline||"-"}</td><td>${t.tanggal_jatuh_tempo||"-"}</td><td>${t.tanggal_checkout||"-"}</td><td>${t.tanggal_kirim||"-"}</td><td>${t.tanggal_terima||"-"}</td><td>${t.tanggal_bayar||"-"}</td><td><button class="btn-icon btn-edit" onclick="app.editTransaksi(${t.no})">&#9999;&#65039;</button> <button class="btn-icon btn-delete" onclick="app.deleteTransaksi(${t.no})">&#128465;&#65039;</button></td></tr>`).join("");
+          tbody.innerHTML = data.map((t, i) => `<tr><td>${i+1}</td><td>${t.tanggal_pembelian||"-"}</td><td>${t.kppn||"-"}</td><td>${t.satuan_kerja||"-"}</td><td>${t.pejabat_pengadaan||"-"}</td><td>${t.produk||"-"}</td><td>Rp ${(t.total_nominal||0).toLocaleString("id-ID")}</td><td>${t.nomor_rekening||"-"}</td><td>${t.nomor_invoice||"-"}</td><td>${t.metode_bayar||"-"}</td><td><span class="badge ${t.status_transaksi==="Berhasil"?"badge-success":t.status_transaksi==="Pending"?"badge-warning":"badge-danger"}">${t.status_transaksi||"Pending"}</span></td><td>${t.tanggal_deadline||"-"}</td><td>${t.tanggal_jatuh_tempo||"-"}</td><td>${t.tanggal_checkout||"-"}</td><td>${t.tanggal_kirim||"-"}</td><td>${t.tanggal_terima||"-"}</td><td>${t.tanggal_bayar||"-"}</td><td><button class="btn-icon btn-edit" onclick="app.editTransaksi(${t.no})">✏️</button> <button class="btn-icon btn-delete" onclick="app.deleteTransaksi(${t.no})">🗑️</button></td></tr>`).join("");
         },
 
         renderProsesTable() {
@@ -618,15 +977,15 @@
           if (!data.length) { tbody.innerHTML = '<tr><td colspan="4" class="loading">Tidak ada data</td></tr>'; return; }
           tbody.innerHTML = data.map((a, i) => {
             const tgl = a.created_at ? new Date(a.created_at).toLocaleString("id-ID", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" }) : "-";
-            return `<tr><td>${i+1}</td><td><strong>${a.username}</strong></td><td style="color:#64748b;font-size:13px">${tgl}</td><td><button class="btn-icon btn-edit" onclick="app.editAdmin(${a.id_admin})">&#9999;&#65039; Edit</button> <button class="btn-icon btn-delete" onclick="app.promptDeleteAdmin(${a.id_admin},'${a.username}')">&#128465;&#65039; Hapus</button></td></tr>`;
+            return `<tr><td>${i+1}</td><td><strong>${a.username}</strong></td><td style="color:#64748b;font-size:13px">${tgl}</td><td><button class="btn-icon btn-edit" onclick="app.editAdmin(${a.id_admin})">✏️ Edit</button> <button class="btn-icon btn-delete" onclick="app.promptDeleteAdmin(${a.id_admin},'${a.username}')">🗑️ Hapus</button></td></tr>`;
           }).join("");
         },
 
         getFilteredData() {
-          const idMap = { dashboard: "searchDashboard", "data-transaksi": "searchTransaksi", "rekap-digipay": "searchRekap", "manajemen-admin": "searchAdmin", "sheet-proses": "searchProses" };
+          const idMap = { "data-satker": "searchSatker", "data-transaksi": "searchTransaksi", "rekap-digipay": "searchRekap", "manajemen-admin": "searchAdmin", "sheet-proses": "searchProses" };
           const q = document.getElementById(idMap[this.activePage] || "searchProses")?.value.toLowerCase() || "";
 
-          if (this.activePage === "dashboard") return this.dashboardData.filter(d => (d.kode_satker||"").toLowerCase().includes(q) || (d.nama_satker||"").toLowerCase().includes(q));
+          if (this.activePage === "data-satker") return this.dashboardData.filter(d => (d.kode_satker||"").toLowerCase().includes(q) || (d.nama_satker||"").toLowerCase().includes(q));
           if (this.activePage === "data-transaksi") return this.transaksiData.filter(t => (t.kode_satker||"").toLowerCase().includes(q) || (t.satuan_kerja||"").toLowerCase().includes(q) || (t.pejabat_pengadaan||"").toLowerCase().includes(q) || (t.nomor_invoice||"").toLowerCase().includes(q) || (t.kppn||"").toLowerCase().includes(q));
           if (this.activePage === "sheet-proses") { const sf = document.getElementById("statusFilter").value; return this.sheetProsesData.filter(p => ((p.kodeSatker||"").toLowerCase().includes(q) || (p.namaSatker||"").toLowerCase().includes(q)) && (!sf || p.status === sf)); }
           if (this.activePage === "rekap-digipay") { const sf = document.getElementById("statusFilterRekap").value; return this.rekapDigipayData.filter(r => ((r.kodeSatker||"").toLowerCase().includes(q) || (r.namaSatker||"").toLowerCase().includes(q)) && (!sf || r.status === sf)); }
@@ -637,22 +996,22 @@
         searchData() { this.renderCurrentPage(); },
 
         clearSearch() {
-          ["searchDashboard","searchTransaksi","searchProses","searchRekap","searchAdmin"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+          ["searchSatker","searchTransaksi","searchProses","searchRekap","searchAdmin"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
           const sf = document.getElementById("statusFilter"); if (sf) sf.value = "";
           const sfr = document.getElementById("statusFilterRekap"); if (sfr) sfr.value = "";
         },
 
         openModal(type, data = null) {
           this.currentEdit = data;
-          if (type === "dashboard") {
-            document.getElementById("dashboardModalTitle").textContent = data ? "Edit Data Satker" : "Tambah Data Satker";
+          if (type === "satker") {
+            document.getElementById("satkerModalTitle").textContent = data ? "Edit Data Satker" : "Tambah Data Satker";
             const ki = document.getElementById("kodeSatkerDash");
             ki.value = data?.kode_satker || "";
             if (data) { ki.setAttribute("readonly","readonly"); ki.style.background = "#f8fafc"; } else { ki.removeAttribute("readonly"); ki.style.background = "white"; }
             document.getElementById("namaSatkerDash").value = data?.nama_satker || "";
             document.getElementById("upRM").value = data?.nominal || 0;
             document.getElementById("nomorWA").value = data?.nomor_wa || "";
-            document.getElementById("dashboardModal").classList.add("active");
+            document.getElementById("satkerModal").classList.add("active");
           } else if (type === "transaksi") {
             document.getElementById("transaksiModalTitle").textContent = data ? "Edit Data Transaksi" : "Tambah Data Transaksi";
             document.getElementById("tglPembelian").value = data?.tanggal_pembelian || "";
@@ -678,50 +1037,107 @@
         },
 
         closeModal(type) {
-          const map = { dashboard:"dashboardModal", transaksi:"transaksiModal", whatsapp:"whatsappModal", import:"importModal", admin:"adminModal", deleteAdmin:"deleteAdminModal" };
+          const map = { satker:"satkerModal", transaksi:"transaksiModal", whatsapp:"whatsappModal", import:"importModal", admin:"adminModal", deleteAdmin:"deleteAdminModal" };
           if (map[type]) document.getElementById(map[type]).classList.remove("active");
           this.currentEdit = null;
         },
 
-        async saveDashboard(e) {
+        async saveSatker(e) {
           e.preventDefault();
           const data = { kode_satker: document.getElementById("kodeSatkerDash").value, nama_satker: document.getElementById("namaSatkerDash").value, nominal: parseFloat(document.getElementById("upRM").value)||0, nomor_wa: document.getElementById("nomorWA").value };
           try {
-            if (this.currentEdit) { const { error } = await supabaseClient.from("tbl_satker").update(data).eq("kode_satker", this.currentEdit.kode_satker); if (error) throw error; }
-            else {
+            if (this.currentEdit) {
+              const { error } = await supabaseClient.from("tbl_satker").update(data).eq("kode_satker", this.currentEdit.kode_satker);
+              if (error) throw error;
+            } else {
               const { data: ex } = await supabaseClient.from("tbl_satker").select("kode_satker").eq("kode_satker", data.kode_satker).maybeSingle();
               if (ex) { alert('Kode "' + data.kode_satker + '" sudah ada!'); return; }
-              const { error } = await supabaseClient.from("tbl_satker").insert([data]); if (error) throw error;
+              const { error } = await supabaseClient.from("tbl_satker").insert([data]);
+              if (error) throw error;
             }
-            await this.loadDashboardData(); this.calculateSheetProses(); this.calculateRekapDigipay(); this.renderAll(); this.updateStats(); this.closeModal("dashboard");
+            await this.loadDashboardData();
+            this.calculateSheetProses();
+            this.calculateRekapDigipay();
+            this.renderAll();
+            this.updateStats();
+            this.renderDashboardCharts();
+            this.closeModal("satker");
             alert("Data satker berhasil " + (this.currentEdit ? "diperbarui" : "ditambahkan") + "!");
           } catch(err) { alert("Gagal: " + err.message); }
         },
 
-        editDashboard(kode) { const d = this.dashboardData.find(x => x.kode_satker === kode); if (d) this.openModal("dashboard", d); },
+        editSatker(kode) {
+          const d = this.dashboardData.find(x => x.kode_satker === kode);
+          if (d) this.openModal("satker", d);
+        },
 
         async saveTransaksi(e) {
           e.preventDefault();
-          const data = { tanggal_pembelian: document.getElementById("tglPembelian").value, kppn: document.getElementById("kppn").value, kode_satker: document.getElementById("kodeSatker").value, satuan_kerja: document.getElementById("satker").value, pejabat_pengadaan: document.getElementById("pejabat").value, produk: document.getElementById("produk").value, total_nominal: parseFloat(document.getElementById("totalNominal").value)||0, nomor_rekening: document.getElementById("noRekening").value||null, nomor_invoice: document.getElementById("noInvoice").value, metode_bayar: document.getElementById("metodeBayar").value, status_transaksi: document.getElementById("statusTransaksi").value, tanggal_deadline: document.getElementById("tglDeadline").value||null, tanggal_jatuh_tempo: document.getElementById("tglJatuhTempo").value||null, tanggal_checkout: document.getElementById("tglCheckout").value||null, tanggal_kirim: document.getElementById("tglKirim").value||null, tanggal_terima: document.getElementById("tglTerima").value||null, tanggal_bayar: document.getElementById("tglBayar").value||null };
+          const data = {
+            tanggal_pembelian: document.getElementById("tglPembelian").value,
+            kppn: document.getElementById("kppn").value,
+            kode_satker: document.getElementById("kodeSatker").value,
+            satuan_kerja: document.getElementById("satker").value,
+            pejabat_pengadaan: document.getElementById("pejabat").value,
+            produk: document.getElementById("produk").value,
+            total_nominal: parseFloat(document.getElementById("totalNominal").value)||0,
+            nomor_rekening: document.getElementById("noRekening").value||null,
+            nomor_invoice: document.getElementById("noInvoice").value,
+            metode_bayar: document.getElementById("metodeBayar").value,
+            status_transaksi: document.getElementById("statusTransaksi").value,
+            tanggal_deadline: document.getElementById("tglDeadline").value||null,
+            tanggal_jatuh_tempo: document.getElementById("tglJatuhTempo").value||null,
+            tanggal_checkout: document.getElementById("tglCheckout").value||null,
+            tanggal_kirim: document.getElementById("tglKirim").value||null,
+            tanggal_terima: document.getElementById("tglTerima").value||null,
+            tanggal_bayar: document.getElementById("tglBayar").value||null
+          };
           try {
-            if (this.currentEdit) { const { error } = await supabaseClient.from("tbl_transaksi").update(data).eq("no", this.currentEdit.no); if (error) throw error; }
-            else { const { error } = await supabaseClient.from("tbl_transaksi").insert([data]); if (error) throw error; }
-            await this.loadTransaksiData(); this.calculateSheetProses(); this.calculateRekapDigipay(); this.renderAll(); this.updateStats(); this.closeModal("transaksi"); alert("Data transaksi berhasil disimpan!");
+            if (this.currentEdit) {
+              const { error } = await supabaseClient.from("tbl_transaksi").update(data).eq("no", this.currentEdit.no);
+              if (error) throw error;
+            } else {
+              const { error } = await supabaseClient.from("tbl_transaksi").insert([data]);
+              if (error) throw error;
+            }
+            await this.loadTransaksiData();
+            this.calculateSheetProses();
+            this.calculateRekapDigipay();
+            this.renderAll();
+            this.updateStats();
+            this.renderDashboardCharts();
+            this.closeModal("transaksi");
+            alert("Data transaksi berhasil disimpan!");
           } catch(err) { alert("Gagal: " + err.message); }
         },
 
-        editTransaksi(id) { const d = this.transaksiData.find(t => t.no === id); if (d) this.openModal("transaksi", d); },
+        editTransaksi(id) {
+          const d = this.transaksiData.find(t => t.no === id);
+          if (d) this.openModal("transaksi", d);
+        },
 
         async deleteTransaksi(id) {
           if (!confirm("Hapus transaksi ini?")) return;
-          try { const { error } = await supabaseClient.from("tbl_transaksi").delete().eq("no", id); if (error) throw error; await this.loadTransaksiData(); this.calculateSheetProses(); this.calculateRekapDigipay(); this.renderAll(); this.updateStats(); alert("Data berhasil dihapus!"); }
-          catch(err) { alert("Gagal: " + err.message); }
+          try {
+            const { error } = await supabaseClient.from("tbl_transaksi").delete().eq("no", id);
+            if (error) throw error;
+            await this.loadTransaksiData();
+            this.calculateSheetProses();
+            this.calculateRekapDigipay();
+            this.renderAll();
+            this.updateStats();
+            this.renderDashboardCharts();
+            alert("Data berhasil dihapus!");
+          } catch(err) { alert("Gagal: " + err.message); }
         },
 
         prepareWhatsApp(kode) {
-          const s = this.dashboardData.find(d => d.kode_satker === kode); if (!s) return;
+          const s = this.dashboardData.find(d => d.kode_satker === kode);
+          if (!s) return;
           const p = this.sheetProsesData.find(x => x.kodeSatker === kode);
-          const msg = p && p.status === "SUDAH" ? `Kami memberikan apresiasi kepada ${s.nama_satker} yang telah mengimplementasikan Digipay.\n\nSampai saat ini telah melakukan ${p.prosesTransaksi} proses transaksi dan ${p.transaksi} transaksi berhasil.\n\nMohon terus lakukan optimalisasi digitalisasi pembayaran.` : `Berdasarkan monitoring, ${s.nama_satker} belum mengimplementasikan Digipay.\n\nSesuai Nota Dinas Direktur Pengelolaan Kas Negara, setiap satker ditargetkan minimal 2 transaksi.\n\nHubungi CSO KPPN: 081349358202`;
+          const msg = p && p.status === "SUDAH"
+            ? `Kami memberikan apresiasi kepada ${s.nama_satker} yang telah mengimplementasikan Digipay.\n\nSampai saat ini telah melakukan ${p.prosesTransaksi} proses transaksi dan ${p.transaksi} transaksi berhasil.\n\nMohon terus lakukan optimalisasi digitalisasi pembayaran.`
+            : `Berdasarkan monitoring, ${s.nama_satker} belum mengimplementasikan Digipay.\n\nSesuai Nota Dinas Direktur Pengelolaan Kas Negara, setiap satker ditargetkan minimal 2 transaksi.\n\nHubungi CSO KPPN: 081349358202`;
           document.getElementById("waSatkerName").value = s.nama_satker;
           document.getElementById("waNumber").value = s.nomor_wa || "";
           document.getElementById("waMessage").value = msg;
@@ -739,7 +1155,9 @@
         showImportModal(type) {
           this.importType = type;
           document.getElementById("importModalTitle").textContent = type === "satker" ? "Import Data Satker dari Excel" : "Import Data Transaksi dari Excel";
-          document.getElementById("importInstructions").innerHTML = type === "satker" ? "<p><strong>Kolom wajib:</strong> kode_satker, nama_satker</p><p>Opsional: nominal, nomor_wa</p>" : "<p><strong>Kolom wajib:</strong> tanggal_pembelian, kode_satker, satuan_kerja</p><p style='color:#64748b;font-size:12px;margin-top:8px'>Format tanggal: YYYY-MM-DD</p>";
+          document.getElementById("importInstructions").innerHTML = type === "satker"
+            ? "<p><strong>Kolom wajib:</strong> kode_satker, nama_satker</p><p>Opsional: nominal, nomor_wa</p>"
+            : "<p><strong>Kolom wajib:</strong> tanggal_pembelian, kode_satker, satuan_kerja</p><p style='color:#64748b;font-size:12px;margin-top:8px'>Format tanggal: YYYY-MM-DD</p>";
           document.getElementById("excelFile").value = "";
           document.getElementById("previewContainer").style.display = "none";
           document.getElementById("btnProcessImport").disabled = true;
@@ -750,24 +1168,47 @@
         async readExcelFile(file) {
           return new Promise((res, rej) => {
             const r = new FileReader();
-            r.onload = e => { try { const wb = XLSX.read(new Uint8Array(e.target.result), { type:"array" }); res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1 })); } catch(err) { rej(err); } };
+            r.onload = e => {
+              try {
+                const wb = XLSX.read(new Uint8Array(e.target.result), { type:"array" });
+                res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1 }));
+              } catch(err) { rej(err); }
+            };
             r.onerror = () => rej(new Error("Gagal membaca file"));
             r.readAsArrayBuffer(file);
           });
         },
 
         async previewImport() {
-          const file = document.getElementById("excelFile").files[0]; if (!file) return;
+          const file = document.getElementById("excelFile").files[0];
+          if (!file) return;
           try {
             const raw = await this.readExcelFile(file);
             if (raw.length < 2) { alert("File harus minimal 2 baris"); return; }
             const norm = h => h ? String(h).toLowerCase().trim().replace(/\s+/g,"_") : "";
-            const hmap = {}; raw[0].forEach((h,i) => { hmap[norm(h)] = i; });
-            const maps = this.importType === "satker" ? { kode_satker:["kode_satker","kode"], nama_satker:["nama_satker","satker","nama"], nominal:["nominal","up_rm"], nomor_wa:["nomor_wa","wa","whatsapp"] } : { tanggal_pembelian:["tanggal_pembelian","tgl_pembelian"], kppn:["kppn"], kode_satker:["kode_satker","kode"], satuan_kerja:["satuan_kerja","satker"], pejabat_pengadaan:["pejabat_pengadaan","pejabat"], produk:["produk"], total_nominal:["total_nominal","nominal"], nomor_rekening:["nomor_rekening","no_rekening"], nomor_invoice:["nomor_invoice","no_invoice"], metode_bayar:["metode_bayar","metode"], status_transaksi:["status_transaksi","status"], tanggal_deadline:["tanggal_deadline","deadline"], tanggal_jatuh_tempo:["tanggal_jatuh_tempo","jatuh_tempo"], tanggal_checkout:["tanggal_checkout","checkout"], tanggal_kirim:["tanggal_kirim"], tanggal_terima:["tanggal_terima"], tanggal_bayar:["tanggal_bayar"] };
-            this.importData = raw.slice(1).filter(r => r.some(c => c !== null && c !== undefined && c !== "")).map(row => { const obj = {}; Object.keys(maps).forEach(k => { for (const ph of maps[k]) { if (hmap[norm(ph)] !== undefined) { obj[k] = row[hmap[norm(ph)]]; break; } } }); return obj; });
+            const hmap = {};
+            raw[0].forEach((h,i) => { hmap[norm(h)] = i; });
+            const maps = this.importType === "satker"
+              ? { kode_satker:["kode_satker","kode"], nama_satker:["nama_satker","satker","nama"], nominal:["nominal","up_rm"], nomor_wa:["nomor_wa","wa","whatsapp"] }
+              : { tanggal_pembelian:["tanggal_pembelian","tgl_pembelian"], kppn:["kppn"], kode_satker:["kode_satker","kode"], satuan_kerja:["satuan_kerja","satker"], pejabat_pengadaan:["pejabat_pengadaan","pejabat"], produk:["produk"], total_nominal:["total_nominal","nominal"], nomor_rekening:["nomor_rekening","no_rekening"], nomor_invoice:["nomor_invoice","no_invoice"], metode_bayar:["metode_bayar","metode"], status_transaksi:["status_transaksi","status"], tanggal_deadline:["tanggal_deadline","deadline"], tanggal_jatuh_tempo:["tanggal_jatuh_tempo","jatuh_tempo"], tanggal_checkout:["tanggal_checkout","checkout"], tanggal_kirim:["tanggal_kirim"], tanggal_terima:["tanggal_terima"], tanggal_bayar:["tanggal_bayar"] };
+            this.importData = raw.slice(1).filter(r => r.some(c => c !== null && c !== undefined && c !== "")).map(row => {
+              const obj = {};
+              Object.keys(maps).forEach(k => {
+                for (const ph of maps[k]) {
+                  if (hmap[norm(ph)] !== undefined) { obj[k] = row[hmap[norm(ph)]]; break; }
+                }
+              });
+              return obj;
+            });
             const cols = Object.keys(this.importData[0] || {});
             let html = "<thead><tr>" + cols.map(h => `<th style="background:#2563eb;color:white;padding:8px;font-size:11px">${h}</th>`).join("") + "</tr></thead><tbody>";
-            this.importData.slice(0,5).forEach(row => { html += "<tr>" + cols.map(h => { let v = row[h]??"- "; if (typeof v==="number" && v>40000 && v<50000) v = new Date((v-25569)*86400*1000).toISOString().split("T")[0]; return `<td style="border:1px solid #e2e8f0;padding:8px;font-size:11px">${v}</td>`; }).join("") + "</tr>"; });
+            this.importData.slice(0,5).forEach(row => {
+              html += "<tr>" + cols.map(h => {
+                let v = row[h] ?? "- ";
+                if (typeof v==="number" && v>40000 && v<50000) v = new Date((v-25569)*86400*1000).toISOString().split("T")[0];
+                return `<td style="border:1px solid #e2e8f0;padding:8px;font-size:11px">${v}</td>`;
+              }).join("") + "</tr>";
+            });
             html += "</tbody>";
             document.getElementById("previewTable").innerHTML = html;
             document.getElementById("previewContainer").style.display = "block";
@@ -782,7 +1223,16 @@
           document.getElementById("btnProcessImport").disabled = true;
           document.getElementById("btnProcessImport").textContent = "Memproses...";
           let ok = 0, fail = 0, errs = [];
-          const pd = v => { if (!v) return null; if (typeof v==="string") { if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; const d=new Date(v); if (!isNaN(d)) return d.toISOString().split("T")[0]; } if (typeof v==="number") return new Date((v-25569)*86400*1000).toISOString().split("T")[0]; return null; };
+          const pd = v => {
+            if (!v) return null;
+            if (typeof v==="string") {
+              if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+              const d = new Date(v);
+              if (!isNaN(d)) return d.toISOString().split("T")[0];
+            }
+            if (typeof v==="number") return new Date((v-25569)*86400*1000).toISOString().split("T")[0];
+            return null;
+          };
           try {
             for (let i = 0; i < this.importData.length; i++) {
               const row = this.importData[i];
@@ -795,17 +1245,45 @@
                   else await supabaseClient.from("tbl_satker").insert([d]);
                 } else {
                   if (!row.tanggal_pembelian || !row.kode_satker || !row.satuan_kerja) throw new Error("Kolom wajib kurang");
-                  await supabaseClient.from("tbl_transaksi").insert([{ tanggal_pembelian: pd(row.tanggal_pembelian), kppn: row.kppn ? String(row.kppn).trim() : "KPPN PEKALONGAN", kode_satker: String(row.kode_satker).trim(), satuan_kerja: String(row.satuan_kerja).trim(), pejabat_pengadaan: row.pejabat_pengadaan ? String(row.pejabat_pengadaan).trim() : null, produk: row.produk ? String(row.produk).trim() : null, total_nominal: parseFloat(String(row.total_nominal||0).replace(/[^\d.-]/g,""))||0, nomor_rekening: row.nomor_rekening ? String(row.nomor_rekening).trim() : null, nomor_invoice: row.nomor_invoice ? String(row.nomor_invoice).trim() : null, metode_bayar: row.metode_bayar ? String(row.metode_bayar).trim() : "VA", status_transaksi: row.status_transaksi ? String(row.status_transaksi).trim() : "Pending", tanggal_deadline: pd(row.tanggal_deadline), tanggal_jatuh_tempo: pd(row.tanggal_jatuh_tempo), tanggal_checkout: pd(row.tanggal_checkout), tanggal_kirim: pd(row.tanggal_kirim), tanggal_terima: pd(row.tanggal_terima), tanggal_bayar: pd(row.tanggal_bayar) }]);
+                  await supabaseClient.from("tbl_transaksi").insert([{
+                    tanggal_pembelian: pd(row.tanggal_pembelian),
+                    kppn: row.kppn ? String(row.kppn).trim() : "KPPN PEKALONGAN",
+                    kode_satker: String(row.kode_satker).trim(),
+                    satuan_kerja: String(row.satuan_kerja).trim(),
+                    pejabat_pengadaan: row.pejabat_pengadaan ? String(row.pejabat_pengadaan).trim() : null,
+                    produk: row.produk ? String(row.produk).trim() : null,
+                    total_nominal: parseFloat(String(row.total_nominal||0).replace(/[^\d.-]/g,""))||0,
+                    nomor_rekening: row.nomor_rekening ? String(row.nomor_rekening).trim() : null,
+                    nomor_invoice: row.nomor_invoice ? String(row.nomor_invoice).trim() : null,
+                    metode_bayar: row.metode_bayar ? String(row.metode_bayar).trim() : "VA",
+                    status_transaksi: row.status_transaksi ? String(row.status_transaksi).trim() : "Pending",
+                    tanggal_deadline: pd(row.tanggal_deadline),
+                    tanggal_jatuh_tempo: pd(row.tanggal_jatuh_tempo),
+                    tanggal_checkout: pd(row.tanggal_checkout),
+                    tanggal_kirim: pd(row.tanggal_kirim),
+                    tanggal_terima: pd(row.tanggal_terima),
+                    tanggal_bayar: pd(row.tanggal_bayar)
+                  }]);
                 }
                 ok++;
               } catch(e) { fail++; errs.push(`Baris ${i+2}: ${e.message}`); }
             }
-            await this.loadDashboardData(); await this.loadTransaksiData(); this.calculateSheetProses(); this.calculateRekapDigipay(); this.renderAll(); this.updateStats();
+            await this.loadDashboardData();
+            await this.loadTransaksiData();
+            this.calculateSheetProses();
+            this.calculateRekapDigipay();
+            this.renderAll();
+            this.updateStats();
+            this.renderDashboardCharts();
             let msg = `Import selesai!\nBerhasil: ${ok}\nGagal: ${fail}`;
             if (errs.length) msg += "\n\nError:\n" + errs.slice(0,5).join("\n");
-            alert(msg); this.closeModal("import");
+            alert(msg);
+            this.closeModal("import");
           } catch(err) { alert("Gagal: " + err.message); }
-          finally { document.getElementById("btnProcessImport").disabled = false; document.getElementById("btnProcessImport").innerHTML = "&#11014;&#65039; Proses Import"; }
+          finally {
+            document.getElementById("btnProcessImport").disabled = false;
+            document.getElementById("btnProcessImport").innerHTML = "&#11014;&#65039; Proses Import";
+          }
         },
 
         openAdminModal(data = null) {
@@ -816,38 +1294,53 @@
           document.getElementById("adminPassword").value = "";
           document.getElementById("adminPasswordConfirm").value = "";
           document.getElementById("passMatchMsg").style.display = "none";
-          if (data) { document.getElementById("adminPassLabel").textContent = "Password Baru (kosongkan jika tidak diubah)"; document.getElementById("adminPassHint").textContent = "Kosongkan jika tidak ingin mengubah."; document.getElementById("adminPassword").required = false; }
-          else { document.getElementById("adminPassLabel").textContent = "Password"; document.getElementById("adminPassHint").textContent = "Minimal 6 karakter."; document.getElementById("adminPassword").required = true; }
+          if (data) {
+            document.getElementById("adminPassLabel").textContent = "Password Baru (kosongkan jika tidak diubah)";
+            document.getElementById("adminPassHint").textContent = "Kosongkan jika tidak ingin mengubah.";
+            document.getElementById("adminPassword").required = false;
+          } else {
+            document.getElementById("adminPassLabel").textContent = "Password";
+            document.getElementById("adminPassHint").textContent = "Minimal 6 karakter.";
+            document.getElementById("adminPassword").required = true;
+          }
           document.getElementById("adminModal").classList.add("active");
         },
 
-        editAdmin(id) { const d = this.adminData.find(a => a.id_admin === id); if (d) this.openAdminModal(d); },
+        editAdmin(id) {
+          const d = this.adminData.find(a => a.id_admin === id);
+          if (d) this.openAdminModal(d);
+        },
 
         async saveAdmin(e) {
           e.preventDefault();
           const username = document.getElementById("adminUsername").value.trim();
           const password = document.getElementById("adminPassword").value;
-          const confirm = document.getElementById("adminPasswordConfirm").value;
+          const confirm2 = document.getElementById("adminPasswordConfirm").value;
           if (username.length < 3) { alert("Username minimal 3 karakter!"); return; }
           if (!this.currentEdit || password) {
             if (!password) { alert("Password harus diisi!"); return; }
             if (password.length < 6) { alert("Password minimal 6 karakter!"); return; }
-            if (password !== confirm) { alert("Password tidak cocok!"); return; }
+            if (password !== confirm2) { alert("Password tidak cocok!"); return; }
           }
           const btn = document.getElementById("adminSubmitBtn");
           btn.disabled = true; btn.textContent = "Menyimpan...";
           try {
             if (this.currentEdit) {
-              const upd = { username }; if (password) upd.password = password;
+              const upd = { username };
+              if (password) upd.password = password;
               const { error } = await supabaseClient.from("admin").update(upd).eq("id_admin", this.currentEdit.id_admin);
-              if (error) throw error; alert("Admin berhasil diperbarui!");
+              if (error) throw error;
+              alert("Admin berhasil diperbarui!");
             } else {
               const { data: ex } = await supabaseClient.from("admin").select("id_admin").eq("username", username).maybeSingle();
               if (ex) { alert(`Username "${username}" sudah digunakan!`); return; }
               const { error } = await supabaseClient.from("admin").insert([{ username, password }]);
-              if (error) throw error; alert("Admin baru berhasil ditambahkan!");
+              if (error) throw error;
+              alert("Admin baru berhasil ditambahkan!");
             }
-            await this.loadAdminData(); this.renderAdminTable(); this.closeModal("admin");
+            await this.loadAdminData();
+            this.renderAdminTable();
+            this.closeModal("admin");
           } catch(err) { alert("Gagal: " + err.message); }
           finally { btn.disabled = false; btn.textContent = this.currentEdit ? "Perbarui" : "Simpan"; }
         },
@@ -865,48 +1358,116 @@
           try {
             const { error } = await supabaseClient.from("admin").delete().eq("id_admin", this.adminToDelete);
             if (error) throw error;
-            this.adminToDelete = null; await this.loadAdminData(); this.renderAdminTable(); this.closeModal("deleteAdmin"); alert("Admin berhasil dihapus!");
+            this.adminToDelete = null;
+            await this.loadAdminData();
+            this.renderAdminTable();
+            this.closeModal("deleteAdmin");
+            alert("Admin berhasil dihapus!");
           } catch(err) { alert("Gagal: " + err.message); }
           finally { btn.disabled = false; btn.textContent = "Hapus"; }
         },
 
         printProses() {
-          const { jsPDF } = window.jspdf; const doc = new jsPDF("landscape");
-          doc.setFontSize(16); doc.setFont(undefined,"bold"); doc.text("LAPORAN PROSES TRANSAKSI DIGIPAY", 148, 15, {align:"center"});
-          doc.setFontSize(12); doc.setFont(undefined,"normal"); doc.text("KPPN Pekalongan", 148, 22, {align:"center"});
-          doc.setFontSize(10); doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}`, 148, 28, {align:"center"});
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF("landscape");
+          doc.setFontSize(16); doc.setFont(undefined,"bold");
+          doc.text("LAPORAN PROSES TRANSAKSI DIGIPAY", 148, 15, {align:"center"});
+          doc.setFontSize(12); doc.setFont(undefined,"normal");
+          doc.text("KPPN Pekalongan", 148, 22, {align:"center"});
+          doc.setFontSize(10);
+          doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}`, 148, 28, {align:"center"});
           doc.setLineWidth(0.5); doc.line(14,32,282,32);
-          const data = this.getFilteredData();
-          doc.setFontSize(9); doc.text(`Total: ${data.length} | Sudah: ${data.filter(d=>d.status==="SUDAH").length} | Belum: ${data.filter(d=>d.status==="BELUM").length}`, 14, 38);
-          doc.autoTable({ startY:44, head:[["No","Kode","Nama Satker","Status","Proses","Transaksi","VA Terbayar"]], body: data.map((x,i)=>[i+1,x.kodeSatker,x.namaSatker,x.status,x.prosesTransaksi,x.transaksi,x.vaTerbayar]), theme:"grid", headStyles:{fillColor:[30,64,175],fontSize:9,fontStyle:"bold",halign:"center"}, bodyStyles:{fontSize:8,cellPadding:3}, columnStyles:{0:{halign:"center",cellWidth:12},1:{halign:"center",cellWidth:25},2:{cellWidth:100},3:{halign:"center",cellWidth:25},4:{halign:"center",cellWidth:25},5:{halign:"center",cellWidth:25},6:{halign:"center",cellWidth:30}}, didDrawCell: d => { if(d.column.index===3&&d.section==="body"){ doc.setFillColor(d.cell.raw==="SUDAH"?16:239,d.cell.raw==="SUDAH"?185:68,d.cell.raw==="SUDAH"?129:68); doc.rect(d.cell.x,d.cell.y,d.cell.width,d.cell.height,"F"); doc.setTextColor(255,255,255); doc.setFontSize(8); doc.text(d.cell.raw,d.cell.x+d.cell.width/2,d.cell.y+d.cell.height/2,{align:"center",baseline:"middle"}); doc.setTextColor(0,0,0); } } });
+          const data = this.sheetProsesData;
+          doc.setFontSize(9);
+          doc.text(`Total: ${data.length} | Sudah: ${data.filter(d=>d.status==="SUDAH").length} | Belum: ${data.filter(d=>d.status==="BELUM").length}`, 14, 38);
+          doc.autoTable({
+            startY: 44,
+            head: [["No","Kode","Nama Satker","Status","Proses","Transaksi","VA Terbayar"]],
+            body: data.map((x,i) => [i+1, x.kodeSatker, x.namaSatker, x.status, x.prosesTransaksi, x.transaksi, x.vaTerbayar]),
+            theme: "grid",
+            headStyles: {fillColor:[30,64,175], fontSize:9, fontStyle:"bold", halign:"center"},
+            bodyStyles: {fontSize:8, cellPadding:3},
+            columnStyles: {0:{halign:"center",cellWidth:12},1:{halign:"center",cellWidth:25},2:{cellWidth:100},3:{halign:"center",cellWidth:25},4:{halign:"center",cellWidth:25},5:{halign:"center",cellWidth:25},6:{halign:"center",cellWidth:30}},
+            didDrawCell: d => {
+              if (d.column.index===3 && d.section==="body") {
+                doc.setFillColor(d.cell.raw==="SUDAH"?16:239, d.cell.raw==="SUDAH"?185:68, d.cell.raw==="SUDAH"?129:68);
+                doc.rect(d.cell.x, d.cell.y, d.cell.width, d.cell.height, "F");
+                doc.setTextColor(255,255,255); doc.setFontSize(8);
+                doc.text(d.cell.raw, d.cell.x+d.cell.width/2, d.cell.y+d.cell.height/2, {align:"center",baseline:"middle"});
+                doc.setTextColor(0,0,0);
+              }
+            }
+          });
           doc.save(`Laporan-Proses-${new Date().toISOString().split("T")[0]}.pdf`);
         },
 
         printRekap() {
-          const { jsPDF } = window.jspdf; const doc = new jsPDF("landscape");
-          doc.setFontSize(16); doc.setFont(undefined,"bold"); doc.text("LAPORAN REKAP DIGIPAY", 148, 15, {align:"center"});
-          doc.setFontSize(12); doc.setFont(undefined,"normal"); doc.text("KPPN Pekalongan", 148, 22, {align:"center"});
-          doc.setFontSize(10); doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}`, 148, 28, {align:"center"});
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF("landscape");
+          doc.setFontSize(16); doc.setFont(undefined,"bold");
+          doc.text("LAPORAN REKAP DIGIPAY", 148, 15, {align:"center"});
+          doc.setFontSize(12); doc.setFont(undefined,"normal");
+          doc.text("KPPN Pekalongan", 148, 22, {align:"center"});
+          doc.setFontSize(10);
+          doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}`, 148, 28, {align:"center"});
           doc.setLineWidth(0.5); doc.line(14,32,282,32);
-          const data = this.getFilteredData();
-          doc.setFontSize(9); doc.text(`Total: ${data.length} | Sudah: ${data.filter(d=>d.status==="SUDAH").length} | Belum: ${data.filter(d=>d.status==="BELUM").length}`, 14, 38);
-          doc.autoTable({ startY:44, head:[["No","Kode","Satker","Nominal","Proses","VA","Transaksi","Status","Keterangan"]], body: data.map(r=>[r.no,r.kodeSatker,r.namaSatker,`Rp ${(r.upRM||0).toLocaleString("id-ID")}`,r.prosesTransaksi,r.vaTerbayar,r.transaksiKuitansi,r.status,r.keterangan||"-"]), theme:"grid", headStyles:{fillColor:[30,64,175],fontSize:8,fontStyle:"bold",halign:"center"}, bodyStyles:{fontSize:7,cellPadding:2}, columnStyles:{0:{halign:"center",cellWidth:10},1:{halign:"center",cellWidth:20},2:{cellWidth:60},3:{halign:"right",cellWidth:30},4:{halign:"center",cellWidth:15},5:{halign:"center",cellWidth:15},6:{halign:"center",cellWidth:20},7:{halign:"center",cellWidth:20},8:{cellWidth:52}}, didDrawCell: d => { if(d.column.index===7&&d.section==="body"){ doc.setFillColor(d.cell.raw==="SUDAH"?16:239,d.cell.raw==="SUDAH"?185:68,d.cell.raw==="SUDAH"?129:68); doc.rect(d.cell.x,d.cell.y,d.cell.width,d.cell.height,"F"); doc.setTextColor(255,255,255); doc.setFontSize(7); doc.text(d.cell.raw,d.cell.x+d.cell.width/2,d.cell.y+d.cell.height/2,{align:"center",baseline:"middle"}); doc.setTextColor(0,0,0); } } });
+          const data = this.rekapDigipayData;
+          doc.setFontSize(9);
+          doc.text(`Total: ${data.length} | Sudah: ${data.filter(d=>d.status==="SUDAH").length} | Belum: ${data.filter(d=>d.status==="BELUM").length}`, 14, 38);
+          doc.autoTable({
+            startY: 44,
+            head: [["No","Kode","Satker","Nominal","Proses","VA","Transaksi","Status","Keterangan"]],
+            body: data.map(r => [r.no, r.kodeSatker, r.namaSatker, `Rp ${(r.upRM||0).toLocaleString("id-ID")}`, r.prosesTransaksi, r.vaTerbayar, r.transaksiKuitansi, r.status, r.keterangan||"-"]),
+            theme: "grid",
+            headStyles: {fillColor:[30,64,175], fontSize:8, fontStyle:"bold", halign:"center"},
+            bodyStyles: {fontSize:7, cellPadding:2},
+            columnStyles: {0:{halign:"center",cellWidth:10},1:{halign:"center",cellWidth:20},2:{cellWidth:60},3:{halign:"right",cellWidth:30},4:{halign:"center",cellWidth:15},5:{halign:"center",cellWidth:15},6:{halign:"center",cellWidth:20},7:{halign:"center",cellWidth:20},8:{cellWidth:52}},
+            didDrawCell: d => {
+              if (d.column.index===7 && d.section==="body") {
+                doc.setFillColor(d.cell.raw==="SUDAH"?16:239, d.cell.raw==="SUDAH"?185:68, d.cell.raw==="SUDAH"?129:68);
+                doc.rect(d.cell.x, d.cell.y, d.cell.width, d.cell.height, "F");
+                doc.setTextColor(255,255,255); doc.setFontSize(7);
+                doc.text(d.cell.raw, d.cell.x+d.cell.width/2, d.cell.y+d.cell.height/2, {align:"center",baseline:"middle"});
+                doc.setTextColor(0,0,0);
+              }
+            }
+          });
           doc.save(`Laporan-Rekap-Digipay-${new Date().toISOString().split("T")[0]}.pdf`);
         },
 
         exportProsesExcel() {
-          const data = this.getFilteredData();
-          const ws = XLSX.utils.json_to_sheet(data.map((x,i) => ({ No:i+1, "Kode Satker":x.kodeSatker, "Nama Satker":x.namaSatker, Status:x.status, "Proses Transaksi":x.prosesTransaksi, Transaksi:x.transaksi, "VA Terbayar":x.vaTerbayar })));
+          const data = this.sheetProsesData;
+          const ws = XLSX.utils.json_to_sheet(data.map((x,i) => ({
+            No: i+1,
+            "Kode Satker": x.kodeSatker,
+            "Nama Satker": x.namaSatker,
+            Status: x.status,
+            "Proses Transaksi": x.prosesTransaksi,
+            Transaksi: x.transaksi,
+            "VA Terbayar": x.vaTerbayar
+          })));
           ws["!cols"] = [{wch:5},{wch:15},{wch:40},{wch:12},{wch:18},{wch:12},{wch:15}];
-          const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Proses Transaksi");
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Proses Transaksi");
           XLSX.writeFile(wb, `Laporan-Proses-${new Date().toISOString().split("T")[0]}.xlsx`);
         },
 
         exportRekapExcel() {
-          const data = this.getFilteredData();
-          const ws = XLSX.utils.json_to_sheet(data.map(x => ({ No:x.no, "Kode Satker":x.kodeSatker, "Nama Satker":x.namaSatker, Nominal:x.upRM||0, "Proses Transaksi":x.prosesTransaksi, "VA Terbayar":x.vaTerbayar, "Transaksi VA":x.transaksiKuitansi, Status:x.status, Keterangan:x.keterangan||"-" })));
+          const data = this.rekapDigipayData;
+          const ws = XLSX.utils.json_to_sheet(data.map(x => ({
+            No: x.no,
+            "Kode Satker": x.kodeSatker,
+            "Nama Satker": x.namaSatker,
+            Nominal: x.upRM||0,
+            "Proses Transaksi": x.prosesTransaksi,
+            "VA Terbayar": x.vaTerbayar,
+            "Transaksi VA": x.transaksiKuitansi,
+            Status: x.status,
+            Keterangan: x.keterangan||"-"
+          })));
           ws["!cols"] = [{wch:5},{wch:15},{wch:40},{wch:15},{wch:18},{wch:15},{wch:15},{wch:12},{wch:35}];
-          const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Rekap Digipay");
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Rekap Digipay");
           XLSX.writeFile(wb, `Laporan-Rekap-Digipay-${new Date().toISOString().split("T")[0]}.xlsx`);
         },
       };
