@@ -1367,73 +1367,185 @@
           finally { btn.disabled = false; btn.textContent = "Hapus"; }
         },
 
+        drawKopSurat(doc, pageWidth, leftMargin, rightMargin) {
+  let yPos = 15;
+  
+  // Coba load logo (opsional, skip jika tidak ada)
+  // Jika ingin pakai logo, tambahkan: const logoBase64 = "data:image/png;base64,..."
+  // const hasLogo = false; // set true jika ada logo
+  
+  // ===== HITUNG MARGIN =====
+  const textLeftMargin = leftMargin;
+  const textRightMargin = rightMargin - 5;
+  const textWidth = textRightMargin - textLeftMargin;
+  const textCenterX = textLeftMargin + textWidth / 2;
+
+  // Baris 1
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text("KEMENTERIAN KEUANGAN REPUBLIK INDONESIA", pageWidth / 2, yPos, { align: "center" });
+  yPos += 5;
+
+  // Baris 2
+  doc.setFontSize(11);
+  doc.text("DIREKTORAT JENDERAL PERBENDAHARAAN", pageWidth / 2, yPos, { align: "center" });
+  yPos += 4.5;
+
+  // Baris 3
+  doc.text("KANTOR WILAYAH DIREKTORAT JENDERAL PERBENDAHARAAN PROVINSI", pageWidth / 2, yPos, { align: "center" });
+  yPos += 4;
+
+  // Baris 4
+  doc.text("JAWA TENGAH", pageWidth / 2, yPos, { align: "center" });
+  yPos += 4;
+
+  // Baris 5 - Nama Kantor
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text("KANTOR PELAYANAN PERBENDAHARAAN NEGARA TIPE A1 PEKALONGAN", pageWidth / 2, yPos, { align: "center" });
+  yPos += 3.5;
+
+  // Alamat
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text("JALAN BAHAGIA NO. 44, PEKALONGAN 51117   TELEPON (0285) 421476   FAKSIMILE (0285) 421479", pageWidth / 2, yPos, { align: "center" });
+  yPos += 3.5;
+
+  doc.text("LAMAN www.djpb.kemenkeu.go.id/kppn/pekalongan", pageWidth / 2, yPos, { align: "center" });
+  yPos += 4;
+
+  // Garis tebal
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(1);
+  doc.line(leftMargin, yPos, rightMargin, yPos);
+  yPos += 1.5;
+  // Garis tipis kedua (efek double line)
+  doc.setLineWidth(0.3);
+  doc.line(leftMargin, yPos, rightMargin, yPos);
+
+  return yPos + 8;
+},
+
         printProses() {
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF("landscape");
-          doc.setFontSize(16); doc.setFont(undefined,"bold");
-          doc.text("LAPORAN PROSES TRANSAKSI DIGIPAY", 148, 15, {align:"center"});
-          doc.setFontSize(12); doc.setFont(undefined,"normal");
-          doc.text("KPPN Pekalongan", 148, 22, {align:"center"});
-          doc.setFontSize(10);
-          doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}`, 148, 28, {align:"center"});
-          doc.setLineWidth(0.5); doc.line(14,32,282,32);
-          const data = this.sheetProsesData;
-          doc.setFontSize(9);
-          doc.text(`Total: ${data.length} | Sudah: ${data.filter(d=>d.status==="SUDAH").length} | Belum: ${data.filter(d=>d.status==="BELUM").length}`, 14, 38);
-          doc.autoTable({
-            startY: 44,
-            head: [["No","Kode","Nama Satker","Status","Proses","Transaksi","VA Terbayar"]],
-            body: data.map((x,i) => [i+1, x.kodeSatker, x.namaSatker, x.status, x.prosesTransaksi, x.transaksi, x.vaTerbayar]),
-            theme: "grid",
-            headStyles: {fillColor:[30,64,175], fontSize:9, fontStyle:"bold", halign:"center"},
-            bodyStyles: {fontSize:8, cellPadding:3},
-            columnStyles: {0:{halign:"center",cellWidth:12},1:{halign:"center",cellWidth:25},2:{cellWidth:100},3:{halign:"center",cellWidth:25},4:{halign:"center",cellWidth:25},5:{halign:"center",cellWidth:25},6:{halign:"center",cellWidth:30}},
-            didDrawCell: d => {
-              if (d.column.index===3 && d.section==="body") {
-                doc.setFillColor(d.cell.raw==="SUDAH"?16:239, d.cell.raw==="SUDAH"?185:68, d.cell.raw==="SUDAH"?129:68);
-                doc.rect(d.cell.x, d.cell.y, d.cell.width, d.cell.height, "F");
-                doc.setTextColor(255,255,255); doc.setFontSize(8);
-                doc.text(d.cell.raw, d.cell.x+d.cell.width/2, d.cell.y+d.cell.height/2, {align:"center",baseline:"middle"});
-                doc.setTextColor(0,0,0);
-              }
-            }
-          });
-          doc.save(`Laporan-Proses-${new Date().toISOString().split("T")[0]}.pdf`);
-        },
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("landscape");
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const leftMargin = 14;
+  const rightMargin = pageWidth - 14;
+
+  // ===== KOP SURAT =====
+  let yPos = this.drawKopSurat(doc, pageWidth, leftMargin, rightMargin);
+
+  // ===== JUDUL LAPORAN =====
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("LAPORAN MONITORING IMPLEMENTASI DIGIPAY", pageWidth / 2, yPos, { align: "center" });
+  yPos += 5;
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID", { weekday:"long", year:"numeric", month:"long", day:"numeric" })}`, pageWidth / 2, yPos, { align: "center" });
+  yPos += 7;
+
+  // ===== RINGKASAN =====
+  const data = this.sheetProsesData;
+  doc.setFontSize(9);
+  doc.text(`Total Satker: ${data.length}   |   Sudah Implementasi: ${data.filter(d=>d.status==="SUDAH").length}   |   Belum: ${data.filter(d=>d.status==="BELUM").length}`, leftMargin, yPos);
+  yPos += 5;
+
+  // ===== TABEL =====
+  doc.autoTable({
+    startY: yPos,
+    head: [["No", "Kode Satker", "Nama Satker", "Status", "Proses Transaksi", "Transaksi Berhasil", "VA Terbayar"]],
+    body: data.map((x, i) => [i+1, x.kodeSatker, x.namaSatker, x.status, x.prosesTransaksi, x.transaksi, x.vaTerbayar]),
+    theme: "grid",
+    headStyles: { fillColor: [30, 64, 175], fontSize: 9, fontStyle: "bold", halign: "center" },
+    bodyStyles: { fontSize: 8, cellPadding: 3 },
+    columnStyles: {
+      0: { halign:"center", cellWidth: 12 },
+      1: { halign:"center", cellWidth: 28 },
+      2: { cellWidth: 95 },
+      3: { halign:"center", cellWidth: 25 },
+      4: { halign:"center", cellWidth: 30 },
+      5: { halign:"center", cellWidth: 30 },
+      6: { halign:"center", cellWidth: 28 }
+    },
+    didDrawCell: d => {
+      if (d.column.index === 3 && d.section === "body") {
+        const isSudah = d.cell.raw === "SUDAH";
+        doc.setFillColor(isSudah ? 16 : 239, isSudah ? 185 : 68, isSudah ? 129 : 68);
+        doc.rect(d.cell.x, d.cell.y, d.cell.width, d.cell.height, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8);
+        doc.text(d.cell.raw, d.cell.x + d.cell.width/2, d.cell.y + d.cell.height/2, { align:"center", baseline:"middle" });
+        doc.setTextColor(0, 0, 0);
+      }
+    }
+  });
+
+  doc.save(`Laporan-Proses-${new Date().toISOString().split("T")[0]}.pdf`);
+},
 
         printRekap() {
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF("landscape");
-          doc.setFontSize(16); doc.setFont(undefined,"bold");
-          doc.text("LAPORAN REKAP DIGIPAY", 148, 15, {align:"center"});
-          doc.setFontSize(12); doc.setFont(undefined,"normal");
-          doc.text("KPPN Pekalongan", 148, 22, {align:"center"});
-          doc.setFontSize(10);
-          doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}`, 148, 28, {align:"center"});
-          doc.setLineWidth(0.5); doc.line(14,32,282,32);
-          const data = this.rekapDigipayData;
-          doc.setFontSize(9);
-          doc.text(`Total: ${data.length} | Sudah: ${data.filter(d=>d.status==="SUDAH").length} | Belum: ${data.filter(d=>d.status==="BELUM").length}`, 14, 38);
-          doc.autoTable({
-            startY: 44,
-            head: [["No","Kode","Satker","Nominal","Proses","VA","Transaksi","Status","Keterangan"]],
-            body: data.map(r => [r.no, r.kodeSatker, r.namaSatker, `Rp ${(r.upRM||0).toLocaleString("id-ID")}`, r.prosesTransaksi, r.vaTerbayar, r.transaksiKuitansi, r.status, r.keterangan||"-"]),
-            theme: "grid",
-            headStyles: {fillColor:[30,64,175], fontSize:8, fontStyle:"bold", halign:"center"},
-            bodyStyles: {fontSize:7, cellPadding:2},
-            columnStyles: {0:{halign:"center",cellWidth:10},1:{halign:"center",cellWidth:20},2:{cellWidth:60},3:{halign:"right",cellWidth:30},4:{halign:"center",cellWidth:15},5:{halign:"center",cellWidth:15},6:{halign:"center",cellWidth:20},7:{halign:"center",cellWidth:20},8:{cellWidth:52}},
-            didDrawCell: d => {
-              if (d.column.index===7 && d.section==="body") {
-                doc.setFillColor(d.cell.raw==="SUDAH"?16:239, d.cell.raw==="SUDAH"?185:68, d.cell.raw==="SUDAH"?129:68);
-                doc.rect(d.cell.x, d.cell.y, d.cell.width, d.cell.height, "F");
-                doc.setTextColor(255,255,255); doc.setFontSize(7);
-                doc.text(d.cell.raw, d.cell.x+d.cell.width/2, d.cell.y+d.cell.height/2, {align:"center",baseline:"middle"});
-                doc.setTextColor(0,0,0);
-              }
-            }
-          });
-          doc.save(`Laporan-Rekap-Digipay-${new Date().toISOString().split("T")[0]}.pdf`);
-        },
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("landscape");
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const leftMargin = 14;
+  const rightMargin = pageWidth - 14;
+
+  // ===== KOP SURAT =====
+  let yPos = this.drawKopSurat(doc, pageWidth, leftMargin, rightMargin);
+
+  // ===== JUDUL LAPORAN =====
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("REKAPITULASI MONITORING DIGIPAY", pageWidth / 2, yPos, { align: "center" });
+  yPos += 5;
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID", { weekday:"long", year:"numeric", month:"long", day:"numeric" })}`, pageWidth / 2, yPos, { align: "center" });
+  yPos += 7;
+
+  // ===== RINGKASAN =====
+  const data = this.rekapDigipayData;
+  doc.setFontSize(9);
+  doc.text(`Total Satker: ${data.length}   |   Sudah: ${data.filter(d=>d.status==="SUDAH").length}   |   Belum: ${data.filter(d=>d.status==="BELUM").length}`, leftMargin, yPos);
+  yPos += 5;
+
+  // ===== TABEL =====
+  doc.autoTable({
+    startY: yPos,
+    head: [["No", "Kode", "Nama Satker", "Nominal (UP/RM)", "Proses", "VA Terbayar", "Trx Kuitansi", "Status", "Keterangan"]],
+    body: data.map(r => [r.no, r.kodeSatker, r.namaSatker, `Rp ${(r.upRM||0).toLocaleString("id-ID")}`, r.prosesTransaksi, r.vaTerbayar, r.transaksiKuitansi, r.status, r.keterangan||"-"]),
+    theme: "grid",
+    headStyles: { fillColor: [30, 64, 175], fontSize: 8, fontStyle: "bold", halign: "center" },
+    bodyStyles: { fontSize: 7, cellPadding: 2 },
+    columnStyles: {
+      0: { halign:"center", cellWidth: 10 },
+      1: { halign:"center", cellWidth: 20 },
+      2: { cellWidth: 58 },
+      3: { halign:"right", cellWidth: 32 },
+      4: { halign:"center", cellWidth: 16 },
+      5: { halign:"center", cellWidth: 18 },
+      6: { halign:"center", cellWidth: 20 },
+      7: { halign:"center", cellWidth: 20 },
+      8: { cellWidth: 50 }
+    },
+    didDrawCell: d => {
+      if (d.column.index === 7 && d.section === "body") {
+        const isSudah = d.cell.raw === "SUDAH";
+        doc.setFillColor(isSudah ? 16 : 239, isSudah ? 185 : 68, isSudah ? 129 : 68);
+        doc.rect(d.cell.x, d.cell.y, d.cell.width, d.cell.height, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(7);
+        doc.text(d.cell.raw, d.cell.x + d.cell.width/2, d.cell.y + d.cell.height/2, { align:"center", baseline:"middle" });
+        doc.setTextColor(0, 0, 0);
+      }
+    }
+  });
+
+  doc.save(`Laporan-Rekap-Digipay-${new Date().toISOString().split("T")[0]}.pdf`);
+},
 
         exportProsesExcel() {
           const data = this.sheetProsesData;
